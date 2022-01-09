@@ -2,6 +2,7 @@
 
 ver="$(grep '#define BCB_VERSION ' src/bcbasic.h | sed 's/#define .* //;s/"//g')"
 build="$(grep '#define BCB_BUILD ' src/bcbasic.h | sed 's/#define .* //;s/"//g')"
+build_id="$(grep '#define BCB_BUILD_ID ' src/bcbasic.h | sed 's/#define .* //')"
 verstr="$build $ver"
 
 echo "Version:        [$ver]"
@@ -25,5 +26,5 @@ mkrel "wine make" "BCBASIC-Windows-x86_64.zip" "config/ resources/ bcbasic.exe" 
 git add */ Makefile README.md LICENSE *.sh
 git commit -S -m "$verstr" || exit $?
 git push || exit $?
-git tag -s "$ver" -m "$verstr" || exit $?
-gh release create "$ver" --title "$verstr" --notes "$verstr" *.zip || exit $?
+git tag -s "$build_id" -m "$verstr" || exit $?
+gh release create "$build_id" --title "$verstr" --notes "$(./release-text.sh)" *.zip || exit $?

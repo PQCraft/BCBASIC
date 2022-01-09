@@ -4,11 +4,11 @@ else
 BIN := bcbasic.exe
 endif
 
-POBJFLAGS := -Wall -Wextra -I. -I./src/include
-OBJFLAGS := -O2 -s -flto -g
+POBJFLAGS := -Wall -Wextra -I. -I./src/include $(POBJFLAGS)
+OBJFLAGS := -O2 -s -flto $(OBJFLAGS)
 
-PBINFLAGS := -Wall -Wextra -L. -L./src/lib -flto
-BINFLAGS := -lm
+PBINFLAGS := -Wall -Wextra -L. -L./src/lib -flto $(PBINFLAGS)
+BINFLAGS := -lm $(BINFLAGS)
 
 SRC := src
 OBJ := obj

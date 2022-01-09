@@ -41,18 +41,20 @@ To build then run, use `make` or `make all`. <br>
 Make sure you have downloaded the readline lib folder from [here](https://github.com/PQCraft/clibasic-winrllib).
 1. Download the ZIP
 2. Go into the .zip file you downloaded
-3. Copy the `lib` folder in `clibasic-winrllib-master`
-4. Paste the folder into `src` in the source code directory
+3. Go into `lib` folder in `clibasic-winrllib-master`
+4. Copy and paste the `readline` folder into `src\include` in the source code directory
+5. Copy and paste the contents of the correct library directory into `src\lib` in the source code directory
+    - For 64-bit Windows, copy and paste the contents of `win64`
+    - For 32-bit Windows, copy and paste the contents of `win32`
 
 Make sure the bin folders of MinGW and Make are in the %PATH%. <br>
 Type `gcc --version` into CMD and if you received a "Can't recognize" message, MinGW is not in your %PATH%. <br>
 Type `make --version` into CMD and if you received a "Can't recognize" message, Make is not in your %PATH%. <br>
 How to add MinGW and/or Make to the %PATH%: <br>
-1. Navigate to where MinGW or Make is installed
-2. <ins>For MinGW</ins>, open the `mingw64` folder
-3. Open the `bin` folder
-4. Copy the location
-5. Add the location you copied to the %PATH% environment variable
+1. Navigate to where MinGW or Make is installed and for MinGW, open the `mingw64` folder
+2. Open the `bin` folder
+3. Copy the location
+4. Add the location you copied to the %PATH% environment variable
     - For Windows 7 and older
         1. Open the Start Menu
         2. Right-click on Computer and click Properties

@@ -4,11 +4,13 @@ ver="$(grep '#define BCB_VERSION ' src/bcbasic.h | sed 's/#define .* //;s/"//g')
 build="$(grep '#define BCB_BUILD ' src/bcbasic.h | sed 's/#define .* //;s/"//g')"
 build_id="$(grep '#define BCB_BUILD_ID ' src/bcbasic.h | sed 's/#define .* //')"
 verstr="$build $ver"
+chlog="$(cat .changelog)"
 
 echo "Version:        [$ver]"
 echo "Build:          [$build]"
 echo "Build ID:       [$build_id]"
 echo "Version string: [$verstr]"
+echo "Changelog:      ["$'\n'"$chlog"$'\n'"]"
 
 mkrel() {
     echo "Making $2..."
@@ -18,14 +20,24 @@ mkrel() {
     $1 $5 1> /dev/null
 }
 
+reltext() {
+    echo "**Changes:**"$'\n'\
+    "$(echo "$@" | sed 's/^/- /')"$'\n'\
+    "<br>"$'\n'\
+    ""$'\n'\
+    "**Binaries:**"$'\n'\
+    "- Linux x86 64-bit: \`BCBASIC-Linux-x86_64.zip\`"$'\n'\
+    "- Windows x86 64-bit: \`BCBASIC-Windows-x86_64.zip\`"
+}
+
 make clean
 wine make clean
 
 mkrel "make" "BCBASIC-Linux-x86_64.zip" "bcbasic" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
 mkrel "wine make" "BCBASIC-Windows-x86_64.zip" "bcbasic.exe" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
 
-git add */ Makefile README.md LICENSE *.sh
-git commit -S -m "$verstr" || exit $?
+git add src/ Makefile README.md LICENSE *.sh
+git commit -S -m "$verstr" -m "$chlog" || exit $?
 git push || exit $?
 git tag -s "$build_id" -m "$verstr" || exit $?
-gh release create "$build_id" --title "$verstr" --notes "$(./release-text.sh)" *.zip || exit $?
+gh release create "$build_id" --title "$verstr" --notes "$(reltext "$chlog")" *.zip || exit $?

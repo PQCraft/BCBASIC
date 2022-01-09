@@ -10,7 +10,7 @@
 
 char* bcb_version = BCB_VERSION;
 char* bcb_build = BCB_BUILD;
-uint64_t bcb_build_id = BCB_BUILD_ID;
+unsigned long bcb_build_id = BCB_BUILD_ID;
 
 char* bcb_error_info = NULL;
 
@@ -81,6 +81,6 @@ bool bcb_castNum(bcb_data data, int type, void* result) {
 }
 
 int main(int argc, char** argv) {
-    printf("ByteCodeBASIC version %s %s (build %lld)\n", bcb_version, bcb_build, (long long)bcb_build_id);
+    printf("ByteCodeBASIC version %s %s (build %lu)\n", bcb_version, bcb_build, bcb_build_id);
     return 0;
 }

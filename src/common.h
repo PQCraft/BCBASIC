@@ -58,8 +58,8 @@ typedef struct {
     bcb_data data;  // Variable data
 } bcb_var;
 
-extern char* bcb_version;       // Compiled version
-extern char* bcb_build;         // Compiled build
-extern uint64_t bcb_build_id;   // Compiled build ID
+extern char* bcb_version;           // Compiled version
+extern char* bcb_build;             // Compiled build
+extern unsigned long bcb_build_id;  // Compiled build ID
 
 #endif

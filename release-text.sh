@@ -11,12 +11,6 @@ echo "**Changes:**
 $(sed 's/^/- /' "$@" "$FILE")
 <br>
 
-**(Compressed) Executables:**
+**Binaries:**
 - Linux x86 64-bit: \`BCBASIC-Linux-x86_64.zip\`
-- Windows x86 64-bit: \`BCBASIC-Windows-x86_64.zip\`
-<br>
-
-**Extras:**
-- Documentation: \`docs.zip\`
-- Example programs: \`examples.zip\`
-- Windows Readline library: \`lib.zip\`"
+- Windows x86 64-bit: \`BCBASIC-Windows-x86_64.zip\`"

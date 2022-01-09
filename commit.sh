@@ -7,6 +7,7 @@ verstr="$build $ver"
 
 echo "Version:        [$ver]"
 echo "Build:          [$build]"
+echo "Build ID:       [$build_id]"
 echo "Version string: [$verstr]"
 
 mkrel() {
@@ -20,8 +21,8 @@ mkrel() {
 make clean
 wine make clean
 
-mkrel "make" "BCBASIC-Linux-x86_64.zip" "config/ resources/ bcbasic" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
-mkrel "wine make" "BCBASIC-Windows-x86_64.zip" "config/ resources/ bcbasic.exe" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
+mkrel "make" "BCBASIC-Linux-x86_64.zip" "bcbasic" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
+mkrel "wine make" "BCBASIC-Windows-x86_64.zip" "bcbasic.exe" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
 
 git add */ Makefile README.md LICENSE *.sh
 git commit -S -m "$verstr" || exit $?

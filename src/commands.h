@@ -11,6 +11,6 @@ enum {
     BCB_CMD_CLS,    // CLS [COLOR%] [, LINE%]
 };
 
-uint16_t bcb_runCmd(int, int, bcb_data*);
+uint16_t runCmd(int, int, bcb_data*);   // Run a command
 
 #endif

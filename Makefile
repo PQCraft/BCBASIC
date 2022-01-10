@@ -14,7 +14,7 @@ SRC := src
 OBJ := obj
 
 SOURCES := $(wildcard $(SRC)/*.c)
-DEPENDS := $(wildcard $(SRC)/*.h)
+DEPENDS := $(wildcard $(SRC)/*.h) Makefile
 OBJECTS := $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
 
 ifdef CC

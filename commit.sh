@@ -21,11 +21,11 @@ mkrel() {
 }
 
 reltext() {
-    echo "**Changes:**"$'\n'\
+    [ -z "$chlog" ] || echo "**Changes:**"$'\n'\
     "$(echo "$@" | sed 's/^/- /')"$'\n'\
     "<br>"$'\n'\
-    ""$'\n'\
-    "**Binaries:**"$'\n'\
+    $'\n'
+    echo "**Binaries:**"$'\n'\
     "- Linux x86 64-bit: \`BCBASIC-Linux-x86_64.zip\`"$'\n'\
     "- Windows x86 64-bit: \`BCBASIC-Windows-x86_64.zip\`"
 }

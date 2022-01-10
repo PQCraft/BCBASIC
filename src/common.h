@@ -2,6 +2,7 @@
 #define BCB_COMMON_H
 
 #include <inttypes.h>
+#include <stdio.h>
 
 enum {
     BCB_TYPE_NONE = -1, // Used for empty arguments
@@ -40,12 +41,12 @@ enum {
     BCB_ERR_INVAL_VAR,          // Invalid variable/array name
     BCB_ERR_INVAL_LABEL,        // Invalid label name
     BCB_ERR_MEMORY,             // Failed to allocate memory
-    BCB_ERR_CUSTOM = 65535,     // Custom error (for use by extensions)
 };
 
 extern char* bcb_error_info;    // Error info string
 
 typedef struct {
+    char* rawdata;      // Unsolved data string
     int type;           // Data type
     int dim;            // Array dimensions (0 for regular variable)
     void* pdata;        // Pointer data
@@ -57,6 +58,22 @@ typedef struct {
     char* name;     // Variable name
     bcb_data data;  // Variable data
 } bcb_var;
+
+typedef struct {
+    FILE* file;     // File handle
+    char* filename; // String containing the file name the command is on
+    int line;       // Line number in file
+    int column;     // Column number in file
+    char* linestr;  // String containing the line the command is on
+    uint16_t id;    // Command ID
+    int argc;       // Argument count
+    bcb_data* args; // Arguments
+} bcb_cmd;
+
+typedef struct {
+    void* next;             // Next linked command
+    bcb_cmd* cmd;           // Command
+} bcb_linked_cmd;
 
 extern char* bcb_version;           // Compiled version
 extern char* bcb_build;             // Compiled build

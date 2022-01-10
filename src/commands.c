@@ -3,7 +3,7 @@
 #include "commands.h"
 #include "common.h"
 
-uint16_t bcb_runCmd(int id, int argc, bcb_data* argv) {
+uint16_t runCmd(int id, int argc, bcb_data* args) {
     switch (id) {
         case BCB_CMD_EXIT:;
             if (argc > 0) {return BCB_ERR_ARG_CT_MM;}

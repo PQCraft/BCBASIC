@@ -31,24 +31,22 @@ enum {
     BCB_ERR_ARG_CT_MM,          // Argument count mismatch
     BCB_ERR_UNDEF_OP,           // Math operation resulted in undefined
     BCB_ERR_INVAL_DATA,         // Argument data invalid or out of range
-    BCB_ERR_NO_FILE,            // No such file
-    BCB_ERR_NO_DIR,             // No such directory
-    BCB_ERR_NO_FD,              // No such file or directory
-    BCB_ERR_NOT_FILE,           // Not a file
-    BCB_ERR_NOT_DIR,            // Not a directory
+    BCB_ERR_NOT_PATH,           // No such file or directory
+    BCB_ERR_IS_FILE,            // Is a file
+    BCB_ERR_IS_DIR,             // Is a directory
     BCB_ERR_INVAL_CMD,          // Invalid command
     BCB_ERR_INVAL_FUNC,         // Invalid function
     BCB_ERR_INVAL_VAR,          // Invalid variable/array name
     BCB_ERR_INVAL_LABEL,        // Invalid label name
     BCB_ERR_MEMORY,             // Failed to allocate memory
+    BCB_ERR_INTERNAL,           // Internal error
 };
-
-extern char* bcb_error_info;    // Error info string
 
 typedef struct {
     char* rawdata;      // Unsolved data string
     int type;           // Data type
     int dim;            // Array dimensions (0 for regular variable)
+    int* size;          // Array dimension sizes
     void* pdata;        // Pointer data
     uint64_t ndata;     // 8-64-bit signed/unsigned int data
     long double fdata;  // 32-64/80-bit float data
@@ -60,23 +58,45 @@ typedef struct {
 } bcb_var;
 
 typedef struct {
-    FILE* file;     // File handle
-    char* filename; // String containing the file name the command is on
     int line;       // Line number in file
     int column;     // Column number in file
     char* linestr;  // String containing the line the command is on
-    uint16_t id;    // Command ID
+    int id;         // Command ID
     int argc;       // Argument count
     bcb_data* args; // Arguments
 } bcb_cmd;
 
 typedef struct {
-    void* next;             // Next linked command
-    bcb_cmd* cmd;           // Command
+    FILE* file;     // File handle
+    char* datablk;  // Data used by the file loader
+    char* filename; // File name
+    long filesize;  // Size of the file
+    int linect;     // Line count of the file
+    char** lines;   // Lines of the file
+} bcb_preprog;
+
+typedef struct {
+    bcb_preprog* prog;  // Pointer to the preprocessed program the command is part of
+    bcb_cmd* cmd;       // Command
+} bcb_extcmd;
+
+typedef struct {
+    bcb_preprog* head;  // Pointer to the head preprocessed program
+    int cmdct;          // Command count
+    bcb_extcmd* cmds;   // Pointer to an array of commands
+} bcb_prog;
+
+typedef struct {
+    void* next;     // Next linked command
+    bcb_cmd* cmd;   // Command
 } bcb_linked_cmd;
 
 extern char* bcb_version;           // Compiled version
 extern char* bcb_build;             // Compiled build
 extern unsigned long bcb_build_id;  // Compiled build ID
+
+#define nfree(ptr) {if (ptr) {free(ptr);} ptr = NULL;}          // Macro to free a pointer and set it to NULL
+#define nfclose(file) {if (file) {fclose(file);} file = NULL;}  // Macro to close a file pointer and set it to NULL
+#define swap(a, b) {__typeof__(a) c = a; a = b; b = c;}         // Macro to swap two variables using the type of the first variable
 
 #endif

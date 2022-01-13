@@ -2,16 +2,20 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <string.h>
 
 #include "bcbasic.h"
 #include "common.h"
 #include "main.h"
 #include "commands.h"
+#include "loader.h"
 
 char* bcb_version = BCB_VERSION;
 char* bcb_build = BCB_BUILD;
 unsigned long bcb_build_id = BCB_BUILD_ID;
 
+uint16_t bcb_errno = 0;
 char* bcb_error_info = NULL;
 
 void printError(uint16_t id) {
@@ -36,20 +40,14 @@ void printError(uint16_t id) {
         case BCB_ERR_INVAL_DATA:;
             fputs("Invalid data", stderr);
             break;
-        case BCB_ERR_NO_FILE:;
-            fprintf(stderr, "No such file: \"%s\"", bcb_error_info);
-            break;
-        case BCB_ERR_NO_DIR:;
-            fprintf(stderr, "No such directory: \"%s\"", bcb_error_info);
-            break;
-        case BCB_ERR_NO_FD:;
+        case BCB_ERR_NOT_PATH:;
             fprintf(stderr, "No such file or directory: \"%s\"", bcb_error_info);
             break;
-        case BCB_ERR_NOT_FILE:;
-            fprintf(stderr, "Not a file: \"%s\"", bcb_error_info);
+        case BCB_ERR_IS_FILE:;
+            fprintf(stderr, "Is a file: \"%s\"", bcb_error_info);
             break;
-        case BCB_ERR_NOT_DIR:;
-            fprintf(stderr, "Not a directory: \"%s\"", bcb_error_info);
+        case BCB_ERR_IS_DIR:;
+            fprintf(stderr, "Is a directory: \"%s\"", bcb_error_info);
             break;
         case BCB_ERR_INVAL_CMD:;
             fputs("Invalid command", stderr);
@@ -70,118 +68,59 @@ void printError(uint16_t id) {
     putc('\n', stderr);
 }
 
-bool castNum(bcb_data data, int type, void* result) {
-    uint64_t ndata = 0;
-    long double fdata = 0;
-    if (data.type >= BCB_TYPE_INT && data.type <= BCB_TYPE_U64) {
-        if (type >= BCB_TYPE_FLOAT && type <= BCB_TYPE_LDOUBLE) {
-            fdata = data.ndata;
-        } else {
-            ndata = data.ndata;
-        }
-    } else if (data.type >= BCB_TYPE_FLOAT && data.type <= BCB_TYPE_LDOUBLE) {
-        if (type >= BCB_TYPE_INT && type <= BCB_TYPE_U64) {
-            ndata = data.fdata;
-        } else {
-            fdata = data.fdata;
-        }
+void setErrorInfo(char* text) {
+    nfree(bcb_error_info);
+    bcb_error_info = strdup(text);
+}
+
+bool getIntData(bcb_data* data, int64_t* out) {
+    int64_t ndata = 0;
+    if (data->type < BCB_TYPE_INT || data->type > BCB_TYPE_LDOUBLE || data->dim > 9) return false;
+    if (data->type >= BCB_TYPE_FLOAT && data->type <= BCB_TYPE_LDOUBLE) {
+        ndata = data->fdata;
     } else {
-        return false;
+        ndata = data->ndata;
     }
-    switch (type) {
-        case BCB_TYPE_INT:;
-        case BCB_TYPE_UINT:;
-            *((unsigned*)result) = (unsigned)ndata;
-            break;
-        case BCB_TYPE_BOOL:;
-            *((bool*)result) = (bool)(ndata != 0);
-            break;
-        case BCB_TYPE_I8:;
-        case BCB_TYPE_U8:;
-            *((uint8_t*)result) = (uint8_t)ndata;
-            break;
-        case BCB_TYPE_I16:;
-        case BCB_TYPE_U16:;
-            *((uint16_t*)result) = (uint16_t)ndata;
-            break;
-        case BCB_TYPE_I32:;
-        case BCB_TYPE_U32:;
-            *((uint32_t*)result) = (uint32_t)ndata;
-            break;
-        case BCB_TYPE_I64:;
-        case BCB_TYPE_U64:;
-            *((uint64_t*)result) = (uint64_t)ndata;
-            break;
-        case BCB_TYPE_FLOAT:;
-            *((float*)result) = (float)fdata;
-            break;
-        case BCB_TYPE_DOUBLE:;
-            *((double*)result) = (double)fdata;
-            break;
-        case BCB_TYPE_LDOUBLE:;
-            *((long double*)result) = (long double)fdata;
-            break;
-    }
+    *out = ndata;
     return true;
 }
 
-bool setNum(bcb_data data, int type, void* value) {
-    if (data.type < BCB_TYPE_INT || data.type > BCB_TYPE_LDOUBLE) {
-        return false;
-    }
-    uint64_t ndata = 0;
+bool getUintData(bcb_data* data, uint64_t* out) {
+    return getIntData(data, (int64_t*)out);
+}
+
+bool getFloatData(bcb_data* data, long double* out) {
     long double fdata = 0;
-    switch (type) {
-        case BCB_TYPE_INT:;
-        case BCB_TYPE_UINT:;
-            ndata = *((unsigned*)value);
-            break;
-        case BCB_TYPE_BOOL:;
-            ndata = (*((bool*)value) != 0);
-            break;
-        case BCB_TYPE_I8:;
-        case BCB_TYPE_U8:;
-            ndata = *((uint8_t*)value);
-            break;
-        case BCB_TYPE_I16:;
-        case BCB_TYPE_U16:;
-            ndata = *((uint16_t*)value);
-            break;
-        case BCB_TYPE_I32:;
-        case BCB_TYPE_U32:;
-            ndata = *((uint32_t*)value);
-            break;
-        case BCB_TYPE_I64:;
-        case BCB_TYPE_U64:;
-            ndata = *((uint64_t*)value);
-            break;
-        case BCB_TYPE_FLOAT:;
-            fdata = *((float*)value);
-            break;
-        case BCB_TYPE_DOUBLE:;
-            fdata = *((double*)value);
-            break;
-        case BCB_TYPE_LDOUBLE:;
-            fdata = *((long double*)value);
-            break;
+    if (data->type < BCB_TYPE_INT || data->type > BCB_TYPE_LDOUBLE || data->dim > 9) return false;
+    if (data->type >= BCB_TYPE_FLOAT && data->type <= BCB_TYPE_LDOUBLE) {
+        fdata = data->fdata;
+    } else {
+        fdata = data->ndata;
     }
-    if (data.type >= BCB_TYPE_INT && data.type <= BCB_TYPE_U64) {
-        if (type >= BCB_TYPE_FLOAT && type <= BCB_TYPE_LDOUBLE) {
-            data.ndata = fdata;
-        } else {
-            data.ndata = ndata;
-        }
-    } else if (data.type >= BCB_TYPE_FLOAT && data.type <= BCB_TYPE_LDOUBLE) {
-        if (type >= BCB_TYPE_INT && type <= BCB_TYPE_U64) {
-            data.ndata = fdata;
-        } else {
-            data.fdata = fdata;
-        }
-    }
+    *out = fdata;
     return true;
+}
+
+int isFile(char* path) {
+    struct stat pathstat;
+    if (stat(path, &pathstat)) return -1;
+    return !(S_ISDIR(pathstat.st_mode));
 }
 
 int main(int argc, char** argv) {
     printf("ByteCodeBASIC version %s %s (build %lu)\n", bcb_version, bcb_build, bcb_build_id);
+    if (argc > 1) {
+        bcb_preprog* prog = loadProgFile(argv[1]);
+        if (!prog) {
+            printError(bcb_errno);
+            return 1;
+        }
+        int linect = prog->linect;
+        printf("%s (%ld bytes, %d line%c):\n", prog->filename, prog->filesize, linect, (linect == 1 ? 0 : 's'));
+        for (long i = 0; i < linect; ++i) {
+            printf("%5ld | %s\n", i + 1, prog->lines[i]);
+        }
+        freeProg(prog);
+    }
     return 0;
 }

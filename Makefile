@@ -25,9 +25,6 @@ SOURCES := $(wildcard $(SRC)/*.c)
 DEPENDS := $(wildcard $(SRC)/*.h) Makefile
 OBJECTS := $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
 
-test:
-	@echo $(LIBO)
-
 .PHONY: all build run clean $(OBJ)
 
 all: run

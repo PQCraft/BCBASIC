@@ -41,3 +41,7 @@ git commit -S -m "$verstr" -m "$chlog" || exit $?
 git push || exit $?
 git tag -s "$ver" -m "$verstr" || exit $?
 gh release create "$ver" --title "$verstr" --notes "$(reltext "$chlog")" *.zip || exit $?
+
+cd .aur
+./update "$ver"
+cd ..

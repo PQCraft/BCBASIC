@@ -1,4 +1,4 @@
-[[ -z "${JOBS}" ]] && JOBS=8
+[[ -z "${JOBS}" ]] && JOBS=$(nproc)
 
 ver="$(grep '#define BCB_VERSION ' src/bcbasic.h | sed 's/#define .* //;s/"//g')"
 build="$(grep '#define BCB_BUILD ' src/bcbasic.h | sed 's/#define .* //;s/"//g')"
@@ -34,7 +34,7 @@ make clean
 wine make clean
 
 mkrel "make" "BCBASIC-Linux-x86_64.zip" "bcbasic" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
-mkrel "wine make" "BCBASIC-Windows-x86_64.zip" "bcbasic.exe" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
+mkrel "make" "BCBASIC-Windows-x86_64.zip" "bcbasic.exe" "BINEXT=.exe CC=x86_64-w64-mingw32-gcc ELIB=lib/win64 CFLAGS=-mtune=generic -j$JOBS build" "clean"
 
 git add src/ Makefile README.md LICENSE *.sh
 git commit -S -m "$verstr" -m "$chlog" || exit $?

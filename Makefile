@@ -1,29 +1,32 @@
-BIN = bcbasic
-
-ifdef OS
-BIN = $(BIN).exe
-endif
-
 ifndef OS
 CC ?= gcc
 else
+BINEXT = .exe
 CC = gcc
 endif
 
-SRC = src
-OBJ = obj
-LIB = $(SRC)/lib
-INC = $(SRC)/inc
+BIN = bcbasic$(BINEXT)
 
-POBJFLAGS := -Wall -Wextra -I. -I$(INC) $(POBJFLAGS)
+SRC ?= src
+OBJ ?= obj
+LIB = $(ELIB) lib
+INC = $(ELIB) inc
+
+INCO = $(patsubst %,-I%,$(INC))
+LIBO = $(patsubst %,-L%,$(LIB))
+
+POBJFLAGS := -Wall -Wextra -I. $(INCO) $(POBJFLAGS)
 OBJFLAGS := -O2 -s -flto $(OBJFLAGS)
 
-PBINFLAGS := -Wall -Wextra -L. -L$(LIB) -flto $(PBINFLAGS)
+PBINFLAGS := -Wall -Wextra -L. $(LIBO) -flto $(PBINFLAGS)
 BINFLAGS := -lm -lreadline $(BINFLAGS)
 
 SOURCES := $(wildcard $(SRC)/*.c)
 DEPENDS := $(wildcard $(SRC)/*.h) Makefile
 OBJECTS := $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
+
+test:
+	@echo $(LIBO)
 
 .PHONY: all build run clean $(OBJ)
 

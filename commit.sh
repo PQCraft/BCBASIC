@@ -31,7 +31,7 @@ reltext() {
 }
 
 make clean
-wine make clean
+make BINEXT=.exe clean
 
 mkrel "make" "BCBASIC-Linux-x86_64.zip" "bcbasic" "CFLAGS=-mtune=generic -j$JOBS build" "clean"
 mkrel "make" "BCBASIC-Windows-x86_64.zip" "bcbasic.exe" "BINEXT=.exe CC=x86_64-w64-mingw32-gcc ELIB=lib/win64 CFLAGS=-mtune=generic -j$JOBS build" "clean"

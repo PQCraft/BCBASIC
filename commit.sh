@@ -40,6 +40,7 @@ git add src/ Makefile README.md LICENSE *.sh
 git commit -S -m "$verstr" -m "$chlog" || exit $?
 git push || exit $?
 git tag -s "$ver" -m "$verstr" || exit $?
+git pull --tags -f || exit $?
 git push --tags || exit $?
 gh release create "$ver" --title "$verstr" --notes "$(reltext "$chlog")" *.zip || exit $?
 

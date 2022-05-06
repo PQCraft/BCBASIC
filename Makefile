@@ -1,25 +1,29 @@
-ifndef OS
-BIN := bcbasic
-else
-BIN := bcbasic.exe
+BIN = bcbasic
+
+ifdef OS
+BIN = $(BIN).exe
 endif
 
-POBJFLAGS := -Wall -Wextra -I. -I./src/include $(POBJFLAGS)
+ifndef OS
+CC ?= gcc
+else
+CC = gcc
+endif
+
+SRC = src
+OBJ = obj
+LIB = $(SRC)/lib
+INC = $(SRC)/inc
+
+POBJFLAGS := -Wall -Wextra -I. -I$(INC) $(POBJFLAGS)
 OBJFLAGS := -O2 -s -flto $(OBJFLAGS)
 
-PBINFLAGS := -Wall -Wextra -L. -L./src/lib -flto $(PBINFLAGS)
-BINFLAGS := -lm $(BINFLAGS)
-
-SRC := src
-OBJ := obj
+PBINFLAGS := -Wall -Wextra -L. -L$(LIB) -flto $(PBINFLAGS)
+BINFLAGS := -lm -lreadline $(BINFLAGS)
 
 SOURCES := $(wildcard $(SRC)/*.c)
 DEPENDS := $(wildcard $(SRC)/*.h) Makefile
 OBJECTS := $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
-
-ifdef CC
-CC := gcc
-endif
 
 .PHONY: all build run clean $(OBJ)
 
@@ -28,14 +32,14 @@ all: run
 build: $(BIN)
 
 run: $(BIN)
-	@echo "Running binary \"./$<\""
+	@echo "Running binary $<..."
 	@./$<
-	@echo "\"./$<\" exited successfully"
+	@echo "Binary $< exited successfully"
 
 $(BIN): $(OBJECTS)
-	@echo "Building binary \"$@\" from \"$^\""
+	@echo "Building binary $@ from $^..."
 	@$(CC) -o $@ $(PCFLAGS) $(PBINFLAGS) $^ $(CFLAGS) $(BINFLAGS)
-	@echo "Built binary \"$@\""
+	@echo "Built binary $@"
 
 $(OBJ):
 ifndef OS
@@ -45,9 +49,9 @@ else
 endif
 
 $(OBJ)/%.o: $(SRC)/%.c $(DEPENDS) | $(OBJ)
-	@echo "Compiling object \"$@\" from \"$<\""
+	@echo "Compiling object $@ from $<..."
 	@$(CC) -o $@ $(PCFLAGS) $(POBJFLAGS) -c $< $(CFLAGS) $(OBJFLAGS)
-	@echo "Compiled object \"$@\""
+	@echo "Compiled object $@"
 
 clean:
 ifndef OS

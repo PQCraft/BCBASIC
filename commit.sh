@@ -39,5 +39,5 @@ mkrel "wine make" "BCBASIC-Windows-x86_64.zip" "bcbasic.exe" "CFLAGS=-mtune=gene
 git add src/ Makefile README.md LICENSE *.sh
 git commit -S -m "$verstr" -m "$chlog" || exit $?
 git push || exit $?
-git tag -s "$build_id" -m "$verstr" || exit $?
-gh release create "$build_id" --title "$verstr" --notes "$(reltext "$chlog")" *.zip || exit $?
+git tag -s "$ver" -m "$verstr" || exit $?
+gh release create "$ver" --title "$verstr" --notes "$(reltext "$chlog")" *.zip || exit $?

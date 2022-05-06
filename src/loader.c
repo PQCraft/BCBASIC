@@ -6,7 +6,7 @@
 #include "loader.h"
 #include "main.h"
 
-bcb_preprog* loadProgFile(char* name) {
+struct bcb_preprog* loadProgFile(char* name) {
     int filestat = isFile(name);
     if (!filestat) {
         bcb_errno = BCB_ERR_IS_DIR;
@@ -29,7 +29,7 @@ bcb_preprog* loadProgFile(char* name) {
         data[i++] = (char)tmpc;
     }
     data[i] = 0;
-    bcb_preprog* prog = calloc(1, sizeof(bcb_preprog));
+    struct bcb_preprog* prog = calloc(1, sizeof(struct bcb_preprog));
     if (!prog) {bcb_errno = BCB_ERR_MEMORY; return NULL;}
     prog->file = file;
     prog->datablk = data;
@@ -55,7 +55,7 @@ bcb_preprog* loadProgFile(char* name) {
     return prog;
 }
 
-void freeProg(bcb_preprog* prog) {
+void freeProg(struct bcb_preprog* prog) {
     nfclose(prog->file);
     nfree(prog->datablk);
     nfree(prog->filename);

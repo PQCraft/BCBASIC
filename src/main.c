@@ -6,9 +6,7 @@
 #include <string.h>
 
 #include "bcbasic.h"
-#include "common.h"
 #include "main.h"
-#include "commands.h"
 #include "loader.h"
 
 char* bcb_version = BCB_VERSION;
@@ -22,6 +20,9 @@ void printError(uint16_t id) {
     if (id == BCB_ERR_NONE) return;
     fprintf(stderr, "Error %u: ", id);
     switch (id) {
+        default:;
+            fputs("Unknown", stderr);
+            break;
         case BCB_ERR_SYNTAX:;
             fputs("Syntax", stderr);
             break;
@@ -73,44 +74,36 @@ void setErrorInfo(char* text) {
     bcb_error_info = strdup(text);
 }
 
-bool getIntData(bcb_data* data, int64_t* out) {
-    int64_t ndata = 0;
-    if (data->type < BCB_TYPE_INT || data->type > BCB_TYPE_LDOUBLE || data->dim > 9) return false;
-    if (data->type >= BCB_TYPE_FLOAT && data->type <= BCB_TYPE_LDOUBLE) {
-        ndata = data->fdata;
-    } else {
-        ndata = data->ndata;
-    }
-    *out = ndata;
-    return true;
-}
-
-bool getUintData(bcb_data* data, uint64_t* out) {
-    return getIntData(data, (int64_t*)out);
-}
-
-bool getFloatData(bcb_data* data, long double* out) {
-    long double fdata = 0;
-    if (data->type < BCB_TYPE_INT || data->type > BCB_TYPE_LDOUBLE || data->dim > 9) return false;
-    if (data->type >= BCB_TYPE_FLOAT && data->type <= BCB_TYPE_LDOUBLE) {
-        fdata = data->fdata;
-    } else {
-        fdata = data->ndata;
-    }
-    *out = fdata;
-    return true;
-}
-
 int isFile(char* path) {
     struct stat pathstat;
     if (stat(path, &pathstat)) return -1;
     return !(S_ISDIR(pathstat.st_mode));
 }
 
+uint64_t qhash(char* str) {
+    uint64_t hash = 0x7FBA0FC3DEADBEEF;
+    uint16_t len = 0;
+    int tmp;
+    while (*str) {
+        ++len;
+        hash ^= ((*str) & 0xFF) * 0xF65C403B1034;
+        for (int i = -1; i < ((*str) & 0x0F); ++i) {
+            tmp = hash & 1;
+            hash = ((uint64_t)tmp << 63) | (hash >> 1);
+        }
+        hash ^= (uint64_t)len * 0xE578E432;
+        tmp = hash & 1;
+        hash = ((uint64_t)tmp << 63) | (hash >> 1);
+        ++str;
+    }
+    //hash ^= (uint64_t)len << 48;
+    return hash;
+}
+
 int main(int argc, char** argv) {
     printf("ByteCodeBASIC version %s %s (build %lu)\n", bcb_version, bcb_build, bcb_build_id);
     if (argc > 1) {
-        bcb_preprog* prog = loadProgFile(argv[1]);
+        struct bcb_preprog* prog = loadProgFile(argv[1]);
         if (!prog) {
             printError(bcb_errno);
             return 1;

@@ -44,5 +44,5 @@ git tag -s "$ver" -m "$verstr" || exit $?
 gh release create "$ver" --title "$verstr" --notes "$(reltext "$chlog")" *.zip || exit $?
 
 cd .aur
-./update "$ver"
+./update.sh "$ver"
 cd ..

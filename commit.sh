@@ -39,6 +39,7 @@ mkrel "make" "BCBASIC-Windows-x86_64.zip" "bcbasic.exe" "BINEXT=.exe CC=x86_64-w
 git add src/ Makefile README.md LICENSE *.sh
 git commit -S -m "$verstr" -m "$chlog" || exit $?
 git push || exit $?
+git push --tags || exit $?
 git tag -s "$ver" -m "$verstr" || exit $?
 gh release create "$ver" --title "$verstr" --notes "$(reltext "$chlog")" *.zip || exit $?
 

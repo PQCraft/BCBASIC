@@ -10,14 +10,14 @@ Extra files: https://github.com/PQCraft/BCBASIC-extras <br>
 ---
 ### Required Packages/Programs <br>
 #### Linux <br>
-Arch (`pacman`): `base-devel`, `readline` <br>
-Debian (`apt`): `build-essential`, `libreadline-dev` <br>
-Alpine (`apk`): `build-base`, `readline-dev` <br>
+Arch (`pacman`): `base-devel` <br>
+Debian (`apt`): `build-essential` <br>
+Alpine (`apk`): `build-base` <br>
 #### Windows <br>
 NT - 10 (download): [`MinGW`](http://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download), [`Make for Windows`](http://gnuwin32.sourceforge.net/packages/make.htm) <br>
 7 - 10 (`choco`): `mingw`, `make` <br>
 #### MacOS <br>
-Mojave - Big Sur (`brew`): `gcc`, `make`, `readline` <br>
+Mojave - Big Sur (`brew`): `gcc`, `make` <br>
 
 ---
 ### Recommended Packages/Programs <br>
@@ -38,15 +38,6 @@ To build, use `make build`. <br>
 To run, use `make run` or `./bcbasic`. <br>
 To build then run, use `make` or `make all`. <br>
 #### Windows <br>
-Make sure you have downloaded the readline lib folder from [here](https://github.com/PQCraft/clibasic-winrllib).
-1. Download the ZIP
-2. Go into the .zip file you downloaded
-3. Go into `lib` folder in `clibasic-winrllib-master`
-4. Copy and paste the `readline` folder into `src\include` in the source code directory
-5. Copy and paste the contents of the correct library directory into `src\lib` in the source code directory
-    - For 64-bit Windows, copy and paste the contents of `win64`
-    - For 32-bit Windows, copy and paste the contents of `win32`
-
 Make sure the bin folders of MinGW and Make are in the %PATH%. <br>
 Type `gcc --version` into CMD and if you received a "Can't recognize" message, MinGW is not in your %PATH%. <br>
 Type `make --version` into CMD and if you received a "Can't recognize" message, Make is not in your %PATH%. <br>

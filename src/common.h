@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 enum {  // Type IDs
+    BCB_TYPE_VAR = -1;  // Variable
     BCB_TYPE_NONE,      // Uninitialized
     BCB_TYPE_NUMBER,    // Number
     BCB_TYPE_STRING,    // String
@@ -30,10 +31,18 @@ enum {  // Error IDs
     BCB_ERR_INTERNAL,       // Internal error
 };
 
+enum {  // Global hashes
+    BCB_HASH_EXIT,  // Hash for EXIT keyword
+    BCB_HASH_QUIT,  // Hash for QUIT keyword
+    BCB_HASH_PRINT, // Hash for PRINT keyword
+    BCB_HASHES,     // Number of hashes
+}
+
 union bcb_data_stub {   // Data container
     long double num;    // Number data
     char* str;          // String data
     void* array;        // Array data
+    bcb_data_stub* var; // Variable reference
 };
 
 struct bcb_data {   // Full data structure
@@ -59,7 +68,7 @@ struct bcb_arg {    // Argument structure
 struct bcb_cmd {    // Command structure
     int line;               // Line number in file
     int column;             // Column number in file
-    uint64_t hash;          // Command ID/hash
+    uint64_t id;            // Command ID/hash
     int argc;               // Argument count
     struct bcb_arg argv;    // Arguments
 };

@@ -16,6 +16,8 @@ unsigned long bcb_build_id = BCB_BUILD_ID;
 uint16_t bcb_errno = 0;
 char* bcb_error_info = NULL;
 
+uint64_t bcb_hashes[BCB_HASHES];
+
 void printError(uint16_t id) {
     if (id == BCB_ERR_NONE) return;
     fprintf(stderr, "Error %u: ", id);
@@ -80,11 +82,11 @@ int isFile(char* path) {
     return !(S_ISDIR(pathstat.st_mode));
 }
 
-uint64_t qhash(char* str) {
+uint64_t qhash(char* str, int max) {
     uint64_t hash = 0x7FBA0FC3DEADBEEF;
     uint16_t len = 0;
     int tmp;
-    while (*str) {
+    while ((max < 0 || len < max) && *str) {
         ++len;
         hash ^= ((*str) & 0xFF) * 0xF65C403B1034;
         for (int i = -1; i < ((*str) & 0x0F); ++i) {

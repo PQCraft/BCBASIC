@@ -9,8 +9,8 @@ BIN = bcbasic$(BINEXT)
 
 SRC ?= src
 OBJ ?= obj
-LIB = $(ELIB) lib
-INC = $(ELIB) inc
+LIB = $(EXTRALIB) lib
+INC = $(EXTRAINC) inc
 
 INCO = $(patsubst %,-I%,$(INC))
 LIBO = $(patsubst %,-L%,$(LIB))
@@ -19,13 +19,11 @@ POBJFLAGS := -Wall -Wextra -I. $(INCO) $(POBJFLAGS)
 OBJFLAGS := -O2 -s -flto $(OBJFLAGS)
 
 PBINFLAGS := -Wall -Wextra -L. $(LIBO) -flto $(PBINFLAGS)
-BINFLAGS := -lm -lreadline $(BINFLAGS)
+BINFLAGS := -lm $(BINFLAGS)
 
 SOURCES := $(wildcard $(SRC)/*.c)
 DEPENDS := $(wildcard $(SRC)/*.h) Makefile
 OBJECTS := $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
-
-.PHONY: all build run clean $(OBJ)
 
 all: run
 
@@ -60,4 +58,6 @@ else
 	@if exist $(BIN) del /Q $(BIN)
 	@if exist $(OBJ) rmdir /S /Q $(OBJ)
 endif
+
+.PHONY: all build run clean $(OBJ)
 

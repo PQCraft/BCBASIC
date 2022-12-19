@@ -1,0 +1,10 @@
+*
+!src/
+!src/**
+!*.sh
+!LICENSE
+!Makefile
+!README.md
+!TODO.md
+!.gitattributes
+!.gitignore

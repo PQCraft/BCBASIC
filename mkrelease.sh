@@ -36,9 +36,9 @@ _zip_r() { rm -f "${1}"; zip -r -9 "${1}" ${@:2} 1> /dev/null; }
 if ! (return 0 2> /dev/null); then
 
 tsk "Getting info..."
-VER_MAJOR="$(grep '#define VER_MAJOR ' src/main/version.h | sed 's/#define .* //')"
-VER_MINOR="$(grep '#define VER_MINOR ' src/main/version.h | sed 's/#define .* //')"
-VER_PATCH="$(grep '#define VER_PATCH ' src/main/version.h | sed 's/#define .* //')"
+VER_MAJOR="$(grep '#define VER_MAJOR ' src/bcbasic.h | sed 's/#define .* //')"
+VER_MINOR="$(grep '#define VER_MINOR ' src/bcbasic.h | sed 's/#define .* //')"
+VER_PATCH="$(grep '#define VER_PATCH ' src/bcbasic.h | sed 's/#define .* //')"
 VER="${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
 printf "${I} ${TB}Version:${TR} [%s]\n" "${VER}"
 getreltext() {
@@ -50,8 +50,6 @@ pause
 
 tsk "Building..."
 ./build.sh || _exit
-inf "Making cavecube_data.zip..."
-_zip_r "cavecube_data.zip" extras/ resources/
 pause
 
 tsk "Pushing..."
@@ -62,11 +60,8 @@ git push || _exit
 tsk "Making release..."
 git tag -s "${VER}" -m "${RELTEXT}" || _exit
 git push --tags || _exit
-gh release create "${VER}" --title "${VER}" --notes "${RELTEXT}" cavecube*.tar.gz cavecube*.zip || _exit
-git checkout master || _exit
-git merge dev || _exit
+gh release create "${VER}" --title "${VER}" --notes "${RELTEXT}" bcbasic*.tar.gz bcbasic*.zip || _exit
 git push || _exit
-git checkout dev || _exit
 
 tsk "Updating AUR..."
 updatepkg() {
@@ -82,13 +77,11 @@ updatepkg() {
     git push || _exit
     cd "$OLDCD"
 }
-updatepkg cavecube
-updatepkg cavecube-bin
-updatepkg cavecube-sdl2
-updatepkg cavecube-sdl2-bin
+updatepkg bcbasic
+updatepkg bcbasic-bin
 
 tsk "Cleaning up..."
-rm -rf cavecube*.tar.gz cavecube*.zip
+rm -rf bcbasic*.tar.gz bcbasic*.zip
 
 tsk "Done"
 exit

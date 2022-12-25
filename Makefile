@@ -15,7 +15,7 @@ INC = $(EXTRAINC) inc
 INCO = $(patsubst %,-I%,$(INC))
 LIBO = $(patsubst %,-L%,$(LIB))
 
-POBJFLAGS := -Wall -Wextra -I. $(INCO) $(POBJFLAGS)
+POBJFLAGS := -Wall -Wextra -std=c99 -DBCB_STANDALONE -I. $(INCO) $(POBJFLAGS)
 OBJFLAGS := -O2 -s -flto $(OBJFLAGS)
 
 PBINFLAGS := -Wall -Wextra -L. $(LIBO) -flto $(PBINFLAGS)
@@ -25,7 +25,7 @@ SOURCES := $(wildcard $(SRC)/*.c)
 DEPENDS := $(wildcard $(SRC)/*.h) Makefile
 OBJECTS := $(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SOURCES))
 
-all: run
+all: build
 
 build: $(BIN)
 

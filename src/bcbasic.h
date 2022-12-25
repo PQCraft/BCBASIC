@@ -1,8 +1,152 @@
+/* .------------------------------------------------------------------------. */
+/* |                          BCBASIC main header                           | */
+/* '------------------------------------------------------------------------' */
+/*                                                                            */
+/*  Command IDs:                                                              */
+/*                                                                            */
+/*    Commands have 32-bit IDs: [16 bits: Group][16 bits: Action]             */
+/*                                                                            */
+/*    - Group ID 0 is reserved for internal actions (program flow, changing   */
+/*      state variables, arithmetic operations, etc).                         */
+/*    - Group ID 1 is reserved for built-in commands and functions.           */
+/*    - Group IDs 2 and up are for extensions.                                */
+/*                                                                            */
+/* '------------------------------------------------------------------------' */
+
 #ifndef BCBASIC_BCBASIC_H
 #define BCBASIC_BCBASIC_H
 
-#define VER_MAJOR 0
-#define VER_MINOR 0
-#define VER_PATCH 0
+// Version (BCB_VER_MAJOR.BCB_VER_MINOR.BCB_VER_PATCH)
+#define BCB_VER_MAJOR 0
+#define BCB_VER_MINOR 0
+#define BCB_VER_PATCH 0
+
+#include <inttypes.h>
+
+enum {  // Error codes
+    BCB_ERR_NONE,       // No error
+    BCB_ERR_SYNTAX,     // Syntax error
+    BCB_ERR_TYPE,       // Type mismatch
+    BCB_ERR_ARG,        // Incorrect argument count
+    BCB_ERR_INVALDATA,  // Invalid data
+    BCB_ERR_INVALNAME,  // Invalid name
+    BCB_ERR_NOTPATH,    // No such file or directory
+    BCB_ERR_NOTFILE,    // Expected a file
+    BCB_ERR_NOTDIR,     // Expected a directory
+    BCB_ERR_MEMORY,     // Allocation failure
+    BCB_ERR_EXTENSION,  // Failed to load an extension
+    BCB_ERR_INTERNAL,   // Internal error
+};
+
+enum {  // Type IDs
+    BCB_TYPE_NONE,      // Used for skipped arguments
+    BCB_TYPE_VAR,       // Variable reference
+    BCB_TYPE_STRING,    // String
+    BCB_TYPE_INT,       // Integer
+    BCB_TYPE_UINT,      // Unsigned integer
+    BCB_TYPE_CHAR,      // Char
+    BCB_TYPE_UCHAR,     // Unsigned char
+    BCB_TYPE_SINT,      // Short integer
+    BCB_TYPE_SUINT,     // Short unsigned integer
+    BCB_TYPE_LINT,      // Long integer
+    BCB_TYPE_LUINT,     // Long unsigned integer
+    BCB_TYPE_LLINT,     // Long long integer
+    BCB_TYPE_LLUINT,    // Long long unsigned integer
+    BCB_TYPE_I8,        // 8-bit integer
+    BCB_TYPE_U8,        // 8-bit unsigned integer
+    BCB_TYPE_I16,       // 16-bit integer
+    BCB_TYPE_U16,       // 16-bit unsigned integer
+    BCB_TYPE_I32,       // 32-bit integer
+    BCB_TYPE_U32,       // 32-bit unsigned integer
+    BCB_TYPE_I64,       // 64-bit integer
+    BCB_TYPE_U64,       // 64-bit unsigned integer
+    BCB_TYPE_FLOAT,     // Float
+    BCB_TYPE_LFLOAT,    // Double
+    BCB_TYPE_LLFLOAT,   // Long double
+};
+
+struct bcb_preprog_line {   // Preprocessed program line
+    char* filename; // Pointer to file name/path in parent bcb_preprog struct
+    int line;       // Line number in file
+    char* text;     // Line text
+};
+
+struct bcb_preprog {    // Preprocessed program
+    char** filenames;               // List of file names/paths
+    struct bcb_preprog_line* lines; // Program lines
+};
+
+struct bcb_string { // String
+    int size;       // Size of .data (incl. \0)
+    int len;        // String length (not incl. \0)
+    char* data;     // String text
+};
+
+union bcb_data_union {  // Data union
+    void* array;
+    struct bcb_data* var;
+    struct bcb_string string;
+    int i;
+    unsigned ui;
+    char c;
+    unsigned char uc;
+    short s;
+    unsigned short us;
+    long l;
+    unsigned long ul;
+    long long ll;
+    unsigned long long ull;
+    int8_t i8;
+    uint8_t u8;
+    int16_t i16;
+    uint16_t u16;
+    int32_t i32;
+    uint32_t u32;
+    int64_t i64;
+    uint64_t u64;
+    float f;
+    double lf;
+    long double llf;
+};
+
+struct bcb_type {   // Type
+    uint8_t id;     // Type ID
+    uint8_t dim;    // Array dimensions (0 if not an array)
+    int* sizes;     // Dimension sizes
+};
+
+struct bcb_data {   // Data
+    struct bcb_type type;       // Type info
+    union bcb_data_union data;  // Data
+};
+
+struct bcb_command {    // Command
+    int line;           // Line
+    int col;            // Column
+    char* filename;     /* Pointer to file name/path in parent bcb_program
+                           struct */
+    uint16_t group;     // Command group
+    uint16_t action;    // Command action
+};
+
+struct bcb_program {    // Program
+    int commandct;                  // Command count
+    struct bcb_command* commands;   // Commands
+};
+
+struct bcb_argstack {   // Argument stack
+    int size;               // Number of arguments allocated
+    int argc;               // Amount of arguments held in .argv
+    struct bcb_data* argv;  // Argument data
+};
+
+
+struct bcb_state {  // Interpreter state
+    int pc;                         // Program counter (current command)
+    struct bcb_data funcret;        // Return value of last function
+    int argstacksize;               // Number of argument stacks allocated
+    int argstackindex;              // Current argument stack
+    struct bcb_argstack* argstack;  // Argument stacks
+};
 
 #endif

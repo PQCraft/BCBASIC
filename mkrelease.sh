@@ -36,9 +36,9 @@ _zip_r() { rm -f "${1}"; zip -r -9 "${1}" ${@:2} 1> /dev/null; }
 if ! (return 0 2> /dev/null); then
 
 tsk "Getting info..."
-VER_MAJOR="$(grep '#define VER_MAJOR ' src/bcbasic.h | sed 's/#define .* //')"
-VER_MINOR="$(grep '#define VER_MINOR ' src/bcbasic.h | sed 's/#define .* //')"
-VER_PATCH="$(grep '#define VER_PATCH ' src/bcbasic.h | sed 's/#define .* //')"
+VER_MAJOR="$(grep '#define BCB_VER_MAJOR ' src/bcbasic.h | sed 's/#define .* //')"
+VER_MINOR="$(grep '#define BCB_VER_MINOR ' src/bcbasic.h | sed 's/#define .* //')"
+VER_PATCH="$(grep '#define BCB_VER_PATCH ' src/bcbasic.h | sed 's/#define .* //')"
 VER="${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}"
 printf "${I} ${TB}Version:${TR} [%s]\n" "${VER}"
 getreltext() {

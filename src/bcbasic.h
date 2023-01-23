@@ -21,6 +21,29 @@
 #define BCB_VER_MINOR 0
 #define BCB_VER_PATCH 0
 
+// Allow redefinition of memory management functions
+#ifndef BCB_MALLOC
+    #define BCB_MALLOC malloc
+#endif
+#ifndef BCB_CALLOC
+    #define BCB_CALLOC calloc
+#endif
+#ifndef BCB_REALLOC
+    #define BCB_REALLOC realloc
+#endif
+#ifndef BCB_FREE
+    #define BCB_FREE free
+#endif
+#ifndef BCB_STRDUP
+    #define BCB_STRDUP strdup
+#endif
+#ifndef BCB_MEMSET
+    #define BCB_MEMSET memset
+#endif
+#ifndef BCB_MEMCPY
+    #define BCB_MEMCPY memcpy
+#endif
+
 #include <inttypes.h>
 
 enum {  // Error codes
@@ -63,6 +86,8 @@ enum {  // Type IDs
     BCB_TYPE_FLOAT,     // Float
     BCB_TYPE_LFLOAT,    // Double
     BCB_TYPE_LLFLOAT,   // Long double
+    BCB_TYPE_STRUCT,    // Struct
+    BCB_TYPE_UNION      // Union
 };
 
 struct bcb_preprog_line {   // Preprocessed program line
@@ -82,42 +107,16 @@ struct bcb_string { // String
     char* data;     // String text
 };
 
-union bcb_data_union {  // Data union
-    void* array;
-    struct bcb_data* var;
-    struct bcb_string string;
-    int i;
-    unsigned ui;
-    char c;
-    unsigned char uc;
-    short s;
-    unsigned short us;
-    long l;
-    unsigned long ul;
-    long long ll;
-    unsigned long long ull;
-    int8_t i8;
-    uint8_t u8;
-    int16_t i16;
-    uint16_t u16;
-    int32_t i32;
-    uint32_t u32;
-    int64_t i64;
-    uint64_t u64;
-    float f;
-    double lf;
-    long double llf;
-};
-
 struct bcb_type {   // Type
     uint8_t id;     // Type ID
+    int index;      // Type index
     uint8_t dim;    // Array dimensions (0 if not an array)
     int* sizes;     // Dimension sizes
 };
 
 struct bcb_data {   // Data
-    struct bcb_type type;       // Type info
-    union bcb_data_union data;  // Data
+    struct bcb_type type;   // Type info
+    void* data;             // Data
 };
 
 struct bcb_command {    // Command

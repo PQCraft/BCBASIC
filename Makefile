@@ -9,8 +9,8 @@ BIN = bcbasic$(BINEXT)
 
 SRC ?= src
 OBJ ?= obj
-LIB = $(EXTRALIB) lib
-INC = $(EXTRAINC) inc
+LIB += lib
+INC += inc
 
 INCO = $(patsubst %,-I%,$(INC))
 LIBO = $(patsubst %,-L%,$(LIB))

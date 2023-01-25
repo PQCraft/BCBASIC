@@ -4,7 +4,7 @@
 /*                                                                            */
 /*  Command IDs:                                                              */
 /*                                                                            */
-/*    Commands have 32-bit IDs: [16 bits: Group][16 bits: Action]             */
+/*    Commands have 32-bit IDs: [16 bits: Group][16 bits: ID #]               */
 /*                                                                            */
 /*    - Group ID 0 is reserved for internal actions (program flow, changing   */
 /*      state variables, arithmetic operations, etc).                         */
@@ -61,9 +61,35 @@ enum {  // Error codes
     BCB_ERR_INTERNAL,   // Internal error
 };
 
+struct bcb_var {    // Variable
+    char* name;             // Variable name
+    struct bcb_data* value; // Variable data
+};
+
+struct bcb_struct { // Struct info
+    int elemct;             // Number of elements
+    struct bcb_type* type;  // Types
+    unsigned long size;     // Total size of struct
+    unsigned long* stride;  // Sizes of individual elements
+};
+
+struct bcb_union { // Union info
+    int elemct;             // Number of elements
+    struct bcb_type* type;  // Types
+    unsigned long size;     // Total size of union
+};
+
+struct bcb_string { // String
+    int size;   // Size of .data (incl. \0)
+    int len;    // String length (not incl. \0)
+    char* data; // String text
+};
+
 enum {  // Type IDs
     BCB_TYPE_NONE,      // Used for skipped arguments
     BCB_TYPE_VAR,       // Variable reference
+    BCB_TYPE_STRUCT,    // Struct
+    BCB_TYPE_UNION,     // Union
     BCB_TYPE_STRING,    // String
     BCB_TYPE_INT,       // Integer
     BCB_TYPE_UINT,      // Unsigned integer
@@ -86,12 +112,10 @@ enum {  // Type IDs
     BCB_TYPE_FLOAT,     // Float
     BCB_TYPE_LFLOAT,    // Double
     BCB_TYPE_LLFLOAT,   // Long double
-    BCB_TYPE_STRUCT,    // Struct
-    BCB_TYPE_UNION      // Union
 };
 
 struct bcb_preprog_line {   // Preprocessed program line
-    char* filename; // Pointer to file name/path in parent bcb_preprog struct
+    int filename;   // Index to file name/path in parent bcb_preprog struct
     int line;       // Line number in file
     char* text;     // Line text
 };
@@ -99,12 +123,6 @@ struct bcb_preprog_line {   // Preprocessed program line
 struct bcb_preprog {    // Preprocessed program
     char** filenames;               // List of file names/paths
     struct bcb_preprog_line* lines; // Program lines
-};
-
-struct bcb_string { // String
-    int size;       // Size of .data (incl. \0)
-    int len;        // String length (not incl. \0)
-    char* data;     // String text
 };
 
 struct bcb_type {   // Type
@@ -120,17 +138,21 @@ struct bcb_data {   // Data
 };
 
 struct bcb_command {    // Command
-    int line;           // Line
-    int col;            // Column
-    char* filename;     /* Pointer to file name/path in parent bcb_program
-                           struct */
-    uint16_t group;     // Command group
-    uint16_t action;    // Command action
+    int line;       // Line
+    int col;        // Column
+    int filename;   // Index to file name/path in parent bcb_program struct
+    uint16_t group; // Command group
+    uint16_t id;    // Command id
 };
+
+struct bcb_state; // Suppress the "declared inside parameter" error below
+typedef int (*bcb_extcall_t)(struct bcb_state* /*state*/, int /*command id*/);
 
 struct bcb_program {    // Program
     int commandct;                  // Command count
     struct bcb_command* commands;   // Commands
+    int extct;                      // Extension count
+    bcb_extcall_t* extcall;         // Extension function calls
 };
 
 struct bcb_argstack {   // Argument stack
@@ -139,9 +161,26 @@ struct bcb_argstack {   // Argument stack
     struct bcb_data* argv;  // Argument data
 };
 
+enum {
+    BCB_STATE_HALTED,
+    BCB_STATE_ACTIVE,
+    BCB_STATE_PAUSED,
+};
 
 struct bcb_state {  // Interpreter state
-    int pc;                         // Program counter (current command)
+    // Program state
+    int state;                      // Interpreter state
+    int prog;                       // Current program
+    struct bcb_program* progstack;  // Program stack
+    int* pc;                        // Program counters (current command)
+    // Variables
+    int varct;                      // Variable count
+    struct bcb_var* vars;           // Variable data
+    int structct;                   // Struct definition count
+    struct bcb_struct* structs;     // Struct definitions
+    int unionct;                    // Union definition count
+    struct bcb_union* unions;       // Union definitions
+    // Temporary data
     struct bcb_data funcret;        // Return value of last function
     int argstacksize;               // Number of argument stacks allocated
     int argstackindex;              // Current argument stack

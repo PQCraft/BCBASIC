@@ -34,33 +34,8 @@ Mojave - Big Sur (`brew`): `git` <br>
 ---
 ### Building and Running <br>
 #### Linux/MacOS <br>
-To build, use `make build`. <br>
-To run, use `make run` or `./bcbasic`. <br>
-To build then run, use `make` or `make all`. <br>
+To build, use `make` or `make build`. <br>
+To build then run, use `make run`. <br>
 #### Windows <br>
-Make sure the bin folders of MinGW and Make are in the %PATH%. <br>
-Type `gcc --version` into CMD and if you received a "Can't recognize" message, MinGW is not in your %PATH%. <br>
-Type `make --version` into CMD and if you received a "Can't recognize" message, Make is not in your %PATH%. <br>
-How to add MinGW and/or Make to the %PATH%: <br>
-1. Navigate to where MinGW or Make is installed and for MinGW, open the `mingw64` folder
-2. Open the `bin` folder
-3. Copy the location
-4. Add the location you copied to the %PATH% environment variable
-    - For Windows 7 and older
-        1. Open the Start Menu
-        2. Right-click on Computer and click Properties
-        3. Click Advanced system settings
-        4. Click the Advanced tab
-        5. Click Environment Variables
-        6. Under System variables, find Path and click Edit
-        7. Add the copied location
-    - For Windows 8 and newer
-        1. Open the Start Menu
-        2. Search for and run 'Edit the system environment variables'
-        3. Click Environment Variables
-        4. Under System variables, find Path and click Edit
-        5. Add the copied location
-
-To build, use `make build`. <br>
-To run, use `make run` or `.\bcbasic.exe`. <br>
-To build then run, use `make` or `make all`. <br>
+To build, use `make` or `make build`. <br>
+To build then run, use `make run`. <br>

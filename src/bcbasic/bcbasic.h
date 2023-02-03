@@ -21,7 +21,7 @@
 #define BCB_VER_MINOR 0
 #define BCB_VER_PATCH 0
 
-// Allow redefinition of memory management functions
+// Allow redefinition of certain functions
 #ifndef BCB_MALLOC
     #define BCB_MALLOC malloc
 #endif
@@ -43,8 +43,18 @@
 #ifndef BCB_MEMCPY
     #define BCB_MEMCPY memcpy
 #endif
+#ifndef BCB_REALPATH
+    #ifndef _WIN32
+        #define BCB_REALPATH(x, y) realpath(x, y)
+    #else
+        #define BCB_REALPATH(x, y) _fullpath(y, x, MAX_PATH)
+    #endif
+#endif
 
+// Required includes
 #include <inttypes.h>
+#include <stdlib.h>
+#include <sys/stat.h>
 
 enum {  // Error codes
     BCB_ERR_NONE,       // No error
@@ -114,17 +124,6 @@ enum {  // Type IDs
     BCB_TYPE_LLFLOAT,   // Long double
 };
 
-struct bcb_preprog_line {   // Preprocessed program line
-    int filename;   // Index to file name/path in parent bcb_preprog struct
-    int line;       // Line number in file
-    char* text;     // Line text
-};
-
-struct bcb_preprog {    // Preprocessed program
-    char** filenames;               // List of file names/paths
-    struct bcb_preprog_line* lines; // Program lines
-};
-
 struct bcb_type {   // Type
     uint8_t id;     // Type ID
     int index;      // Type index
@@ -137,54 +136,10 @@ struct bcb_data {   // Data
     void* data;             // Data
 };
 
-struct bcb_command {    // Command
-    int line;       // Line
-    int col;        // Column
-    int filename;   // Index to file name/path in parent bcb_program struct
-    uint16_t group; // Command group
-    uint16_t id;    // Command id
-};
-
-struct bcb_state; // Suppress the "declared inside parameter" error below
-typedef int (*bcb_extcall_t)(struct bcb_state* /*state*/, int /*command id*/);
-
-struct bcb_program {    // Program
-    int commandct;                  // Command count
-    struct bcb_command* commands;   // Commands
-    int extct;                      // Extension count
-    bcb_extcall_t* extcall;         // Extension function calls
-};
-
-struct bcb_argstack {   // Argument stack
-    int size;               // Number of arguments allocated
-    int argc;               // Amount of arguments held in .argv
-    struct bcb_data* argv;  // Argument data
-};
-
-enum {
-    BCB_STATE_HALTED,
-    BCB_STATE_ACTIVE,
-    BCB_STATE_PAUSED,
-};
-
-struct bcb_state {  // Interpreter state
-    // Program state
-    int state;                      // Interpreter state
-    int prog;                       // Current program
-    struct bcb_program* progstack;  // Program stack
-    int* pc;                        // Program counters (current command)
-    // Variables
-    int varct;                      // Variable count
-    struct bcb_var* vars;           // Variable data
-    int structct;                   // Struct definition count
-    struct bcb_struct* structs;     // Struct definitions
-    int unionct;                    // Union definition count
-    struct bcb_union* unions;       // Union definitions
-    // Temporary data
-    struct bcb_data funcret;        // Return value of last function
-    int argstacksize;               // Number of argument stacks allocated
-    int argstackindex;              // Current argument stack
-    struct bcb_argstack* argstack;  // Argument stacks
-};
+// Include individual sections
+#include "preprocessor.h"
+#include "compiler.h"
+#include "interpreter.h"
+#include "io.h"
 
 #endif

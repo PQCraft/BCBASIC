@@ -1,9 +1,18 @@
+ifeq ($(findstring ;,$(PATH)),;)
+    WIN32=y
+endif
+
 CC ?= gcc
+ifdef WIN32
+    ifeq ($(CC),cc)
+        CC := gcc
+    endif
+endif
 AR ?= ar
 
 BIN ?= bcbasic
 BIN.bcbasic ?= lib$(BIN).a
-ifndef OS
+ifndef WIN32
     BIN.shell ?= $(BIN)
 else
     BIN.shell ?= $(BIN).exe
@@ -17,8 +26,14 @@ SRC.shell ?= $(SRC)/shell
 OBJ.shell ?= $(OBJ)/shell
 
 CFLAGS   := -Wall -Wextra -I$(SRC) -O2 $(CFLAGS)
+ifdef M32
+    CFLAGS += -m32
+endif
 CPPFLAGS := $(CPPFLAGS)
 LDFLAGS  := $(LDFLAGS)
+ifdef M32
+    LDFLAGS += -m32
+endif
 LDLIBS   := $(LDLIBS)
 CFLAGS.bcbasic   := $(CFLAGS) $(CFLAGS.bcbasic)
 CPPFLAGS.bcbasic := $(CPPFLAGS) $(CPPFLAGS.bcbasic)
@@ -45,7 +60,7 @@ run: $(BIN.shell)
 
 $(BIN.bcbasic): $(OBJECTS.bcbasic)
 	@echo Building binary $@ from $^...
-	@$(AR) rs $@ $^
+	@$(AR) rcs $@ $^
 	@echo Built binary $@
 
 $(OBJ.bcbasic)/%.o: $(SRC.bcbasic)/%.c $(DEPENDS.bcbasic) | $(OBJ)
@@ -54,7 +69,7 @@ $(OBJ.bcbasic)/%.o: $(SRC.bcbasic)/%.c $(DEPENDS.bcbasic) | $(OBJ)
 	@echo Compiled object $@
 
 $(BIN.shell): $(OBJECTS.shell) $(BIN.bcbasic)
-	@echo Building binary $@ from $^...
+	@echo Building binary $@ from $(filter %.o,$^)...
 	@$(CC) $(LDFLAGS.shell) $(LDLIBS.shell) -o $@ $(filter %.o,$^)
 	@echo Built binary $@
 
@@ -64,7 +79,7 @@ $(OBJ.shell)/%.o: $(SRC.shell)/%.c $(DEPENDS.shell) | $(OBJ)
 	@echo Compiled object $@
 
 $(OBJ):
-ifndef OS
+ifndef WIN32
 	@[ ! -d $(OBJ) ] && mkdir -p $(OBJ); true
 	@[ ! -d $(OBJ.bcbasic) ] && mkdir -p $(OBJ.bcbasic); true
 	@[ ! -d $(OBJ.shell) ] && mkdir -p $(OBJ.shell); true
@@ -75,10 +90,11 @@ else
 endif
 
 clean:
-ifndef OS
-	@rm -rf $(BIN) $(OBJ)/
+ifndef WIN32
+	@rm -rf $(BIN.bcbasic) $(BIN.shell) $(OBJ)/
 else
-	@if exist $(BIN) (del /Q $(BIN))
+	@if exist $(BIN.bcbasic) (del /Q $(BIN.bcbasic))
+	@if exist $(BIN.shell) (del /Q $(BIN.shell))
 	@if exist $(OBJ) (rmdir /S /Q $(OBJ))
 endif
 

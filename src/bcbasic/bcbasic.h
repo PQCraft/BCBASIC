@@ -50,6 +50,16 @@
         #define BCB_REALPATH(x, y) _fullpath(y, x, MAX_PATH)
     #endif
 #endif
+#ifndef BCB_STRCMP
+    #define BCB_STRCMP strcmp
+#endif
+#ifndef BCB_STRCASECMP
+    #ifndef _WIN32
+        #define BCB_STRCASECMP strcasecmp
+    #else
+        #define BCB_STRCASECMP stricmp
+    #endif
+#endif
 
 // Required includes
 #include <inttypes.h>
@@ -71,33 +81,9 @@ enum {  // Error codes
     BCB_ERR_INTERNAL,   // Internal error
 };
 
-struct bcb_var {    // Variable
-    char* name;             // Variable name
-    struct bcb_data* value; // Variable data
-};
-
-struct bcb_struct { // Struct info
-    int elemct;             // Number of elements
-    struct bcb_type* type;  // Types
-    unsigned long size;     // Total size of struct
-    unsigned long* stride;  // Sizes of individual elements
-};
-
-struct bcb_union { // Union info
-    int elemct;             // Number of elements
-    struct bcb_type* type;  // Types
-    unsigned long size;     // Total size of union
-};
-
-struct bcb_string { // String
-    int size;   // Size of .data (incl. \0)
-    int len;    // String length (not incl. \0)
-    char* data; // String text
-};
-
 enum {  // Type IDs
     BCB_TYPE_NONE,      // Used for skipped arguments
-    BCB_TYPE_VAR,       // Variable reference
+    BCB_TYPE_VARREF,    // Variable reference
     BCB_TYPE_STRUCT,    // Struct
     BCB_TYPE_UNION,     // Union
     BCB_TYPE_STRING,    // String
@@ -124,16 +110,14 @@ enum {  // Type IDs
     BCB_TYPE_LLFLOAT,   // Long double
 };
 
-struct bcb_type {   // Type
-    uint8_t id;     // Type ID
-    int index;      // Type index
-    uint8_t dim;    // Array dimensions (0 if not an array)
-    int* sizes;     // Dimension sizes
+struct bcb_varref {
+
 };
 
-struct bcb_data {   // Data
-    struct bcb_type type;   // Type info
-    void* data;             // Data
+struct bcb_string {
+    unsigned size;
+    unsigned length;
+    char* data;
 };
 
 // Include individual sections

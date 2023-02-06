@@ -1,23 +1,30 @@
 #ifndef BCBASIC_COMPILER_H
 #define BCBASIC_COMPILER_H
 
-#include "interpreter.h"
+#include <inttypes.h>
+#include <stdbool.h>
 
-typedef int (*bcb_extcall_t)(struct bcb_state* /*state*/, int /*command id*/);
-
-struct bcb_command {    // Command
-    int line;       // Line
-    int col;        // Column
-    int filename;   // Index to file name/path in parent bcb_program struct
-    uint16_t group; // Command group
-    uint16_t id;    // Command id
+struct bcb_command {
+    int16_t gid;
+    uint16_t id;
+    int argc;
+    void** argv;
 };
 
-struct bcb_program {    // Program
-    int commandct;                  // Command count
-    struct bcb_command* commands;   // Commands
-    int extct;                      // Extension count
-    bcb_extcall_t* extcall;         // Extension function calls
+struct bcb_compiled {
+    int commands;
+    struct bcb_command* commanddata;
+};
+
+struct bcb_extinfo {
+    bool external;
+    char* name;
+    void* init;
+};
+
+struct bcb_compileropt {
+    struct bcb_extinfo* extensions;
+    void* findext;
 };
 
 #endif

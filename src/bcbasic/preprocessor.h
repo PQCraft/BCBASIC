@@ -3,6 +3,7 @@
 
 struct bcb_plineinfo {
     char* filename;
+    char* pfilename;
     int line;
     int column;
 };

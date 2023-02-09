@@ -25,6 +25,7 @@ struct bcb_extinfo {
 struct bcb_compileropt {
     struct bcb_extinfo* extensions;
     void* findext;
+    int optimization;
 };
 
 #endif

@@ -81,37 +81,71 @@ enum {  // Error codes
     BCB_ERR_INTERNAL,   // Internal error
 };
 
-enum {  // Type IDs
-    BCB_TYPE_NONE,      // Used for skipped arguments
-    BCB_TYPE_VARREF,    // Variable reference
-    BCB_TYPE_STRUCT,    // Struct
-    BCB_TYPE_UNION,     // Union
-    BCB_TYPE_STRING,    // String
-    BCB_TYPE_INT,       // Integer
-    BCB_TYPE_UINT,      // Unsigned integer
-    BCB_TYPE_CHAR,      // Char
-    BCB_TYPE_UCHAR,     // Unsigned char
-    BCB_TYPE_SINT,      // Short integer
-    BCB_TYPE_SUINT,     // Short unsigned integer
-    BCB_TYPE_LINT,      // Long integer
-    BCB_TYPE_LUINT,     // Long unsigned integer
-    BCB_TYPE_LLINT,     // Long long integer
-    BCB_TYPE_LLUINT,    // Long long unsigned integer
-    BCB_TYPE_I8,        // 8-bit integer
-    BCB_TYPE_U8,        // 8-bit unsigned integer
-    BCB_TYPE_I16,       // 16-bit integer
-    BCB_TYPE_U16,       // 16-bit unsigned integer
-    BCB_TYPE_I32,       // 32-bit integer
-    BCB_TYPE_U32,       // 32-bit unsigned integer
-    BCB_TYPE_I64,       // 64-bit integer
-    BCB_TYPE_U64,       // 64-bit unsigned integer
-    BCB_TYPE_FLOAT,     // Float
-    BCB_TYPE_LFLOAT,    // Double
-    BCB_TYPE_LLFLOAT,   // Long double
+enum {  // Type groups
+    BCB_TYPEGROUP_NONE,     // Used for skipped arguments
+    BCB_TYPEGROUP_REGULAR,  // Regular data (single-type single-offset data)
+    BCB_TYPEGROUP_STRUCT,   // Struct (multi-type multi-offset data)
+    BCB_TYPEGROUP_UNION,    // Union (multi-type single-offset data)
+    BCB_TYPEGROUP_VARREF,   // Variable reference
 };
 
-struct bcb_varref {
+enum {  // Type IDs
+    BCB_TYPEID_STRING,    // String
+    BCB_TYPEID_INT,       // Integer
+    BCB_TYPEID_UINT,      // Unsigned integer
+    BCB_TYPEID_CHAR,      // Char
+    BCB_TYPEID_UCHAR,     // Unsigned char
+    BCB_TYPEID_SINT,      // Short integer
+    BCB_TYPEID_SUINT,     // Short unsigned integer
+    BCB_TYPEID_LINT,      // Long integer
+    BCB_TYPEID_LUINT,     // Long unsigned integer
+    BCB_TYPEID_LLINT,     // Long long integer
+    BCB_TYPEID_LLUINT,    // Long long unsigned integer
+    BCB_TYPEID_I8,        // 8-bit integer
+    BCB_TYPEID_U8,        // 8-bit unsigned integer
+    BCB_TYPEID_I16,       // 16-bit integer
+    BCB_TYPEID_U16,       // 16-bit unsigned integer
+    BCB_TYPEID_I32,       // 32-bit integer
+    BCB_TYPEID_U32,       // 32-bit unsigned integer
+    BCB_TYPEID_I64,       // 64-bit integer
+    BCB_TYPEID_U64,       // 64-bit unsigned integer
+    BCB_TYPEID_FLOAT,     // Float
+    BCB_TYPEID_LFLOAT,    // Double
+    BCB_TYPEID_LLFLOAT,   // Long double
+};
 
+struct bcb_type {   // Type info struct
+    int group;      // Type group
+    union {
+        int index;  // Struct/union definition or variable index
+        int id;     // Type ID for regular type
+    };
+    long offset;    // Variable reference offset in struct
+    int dim;        // Array dimensions (0 if not an array)
+    long* sizes;    // Sizes of each dimension
+};
+
+struct bcb_structelem {
+    struct bcb_type type;
+    char* name;
+    long offset;
+};
+
+struct bcb_structdef {
+    int elements;
+    struct bcb_structelem* elemdata;
+    long size;
+};
+
+struct bcb_unionelem {
+    struct bcb_type type;
+    char* name;
+};
+
+struct bcb_uniondef {
+    int elements;
+    struct bcb_unionelem* elemdata;
+    long size;
 };
 
 struct bcb_string {

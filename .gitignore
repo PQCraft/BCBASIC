@@ -1,0 +1,16 @@
+*
+!/docs/
+!/docs/**
+!/include/
+!/include/**
+!/src/
+!/src/**
+!/*.sh
+!/CONTRIBUTING.md
+!/LICENSE
+!/Makefile
+!/README.md
+.**
+!/.github/
+!/.gitattributes
+!/.gitignore

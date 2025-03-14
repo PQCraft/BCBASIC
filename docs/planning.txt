@@ -1,0 +1,71 @@
+Identifier chars: A-Z a-z 0-9 _
+Comment char: '
+Namespace separator: :
+Statement terminators: \n ;
+Preprocessor char: #
+Common ops:
+    Casting:
+        foo = singlebar{2.3}
+        foo = singlebar[]{2.3}
+        foo = singlebar[5]{1.1, 1.2, 1.3, 1.4, 1.5}
+        foo = structbar{.a = 1, .b = 2}
+        foo = structbar[]{{.a = 1, .b = 2}, {.a = 3, .b = 4}}
+Operators:
+    1 (L->R):
+        A ++    - Postfix increment
+        A --    - Postfix decrement
+        A ()    - Function call
+        A []    - Array subscripting
+        A . B   - Structure and union member access
+        A $     - Dereference
+    2 (R->L):
+        ++ A    - Prefix increment
+        -- A    - Prefix decrement
+        + A     - Unary positive
+        - A     - Unary negative
+        ! A     - Logical NOT
+        ~ A     - Bitwise NOT
+        @ A     - Reference
+    3 (L->R):
+        A * B   - Multiplication
+        A / B   - Division
+        A % B   - Remainder
+    4 (L->R):
+        A + B   - Addition
+        A - B   - Subtraction
+    5 (L->R):
+        A << B  - Left shift
+        A >> B  - Right shift
+    6 (L->R):
+        A < B   - Less than
+        A <= B  - Less than or equal to
+        A =< B
+        A >= B  - Greater than or equal to
+        A => B
+        A > B   - Greater than
+    7 (L->R):
+        A == B  - Equal
+        A != B  - Not equal
+        A <> B
+    8 (L->R):
+        A & B   - Bitwise AND
+    9 (L->R):
+        A ^ B   - Bitwise XOR
+    10 (L->R):
+        A | B   - Bitwise OR
+    11 (L->R):
+        A && B  - Logical AND
+    12 (L->R):
+        A || B  - Logical OR
+    13 (R->L):
+        A = B   - Assignment
+        A += B  - Assignment with addition
+        A -= B  - Assignment with subtraction
+        A *= B  - Assignment with multiplication
+        A /= B  - Assignment with division
+        A %= B  - Assignment with remainder
+        A <<= B  - Assignment with left shift
+        A >>= B  - Assignment with right shift
+        A &= B  - Assignment with bitwise AND
+        A ^= B  - Assignment with bitwise XOR
+        A |= B  - Assignment with Bitwise OR

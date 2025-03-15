@@ -1,4 +1,4 @@
-#include <bcbasic/bcbasic.h>
+#include <bcbasic/bcbasic_static.h>
 
 #include <stdio.h>
 

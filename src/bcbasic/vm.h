@@ -1,1 +1,6 @@
-#include "include/bcbasic/vm.h"
+#ifndef BCBASIC_VM_H
+#define BCBASIC_VM_H
+
+// ...
+
+#endif

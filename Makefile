@@ -3,17 +3,11 @@ OBJDIR := obj
 INCDIR := include
 OUTDIR := .
 
-SRCDIR.lib := $(SRCDIR)/bcbasic
-OBJDIR.lib := $(OBJDIR)/bcbasic
+SOURCES.lib := $(wildcard $(SRCDIR)/bcbasic/*.c)
+OBJECTS.lib := $(patsubst $(SRCDIR)/bcbasic/%.c,$(OBJDIR)/bcbasic/%.o,$(SOURCES.lib))
 
-SOURCES.lib := $(wildcard $(SRCDIR.lib)/*.c)
-OBJECTS.lib := $(patsubst $(SRCDIR.lib)/%.c,$(OBJDIR.lib)/%.o,$(SOURCES.lib))
-
-SRCDIR.sh := $(SRCDIR)/shell
-OBJDIR.sh := $(OBJDIR)/shell
-
-SOURCES.sh := $(wildcard $(SRCDIR.sh)/*.c)
-OBJECTS.sh := $(patsubst $(SRCDIR.sh)/%.c,$(OBJDIR.sh)/%.o,$(SOURCES.sh))
+SOURCES.sh := $(wildcard $(SRCDIR)/shell/*.c)
+OBJECTS.sh := $(patsubst $(SRCDIR)/shell/%.c,$(OBJDIR)/shell/%.o,$(SOURCES.sh))
 
 BIN := bcbasic
 
@@ -44,7 +38,7 @@ ifneq ($(DEBUG),y)
     CPPFLAGS += -DNDEBUG
     O := 2
 else
-    CFLAGS += -g
+    CFLAGS += -g -Wdouble-promotion -fno-omit-frame-pointer -std=c11 -pedantic
     O := g
 endif
 CFLAGS += -O$(O)
@@ -53,7 +47,7 @@ ifeq ($(ASAN),y)
     LDFLAGS += -fsanitize=address
 endif
 
-CFLAGS.sh += -I$(SRCDIR.lib)/include
+CFLAGS.sh += -I$(SRCDIR)
 LDFLAGS.sh += -L$(OUTDIR)
 LDLIBS.sh += -l:libbcbasic.a
 
@@ -80,10 +74,10 @@ default: sh
 $(OUTDIR):
 	@$(call mkdir,$@)
 
-$(OBJDIR.lib):
+$(OBJDIR)/bcbasic:
 	@$(call mkdir,$@)
 
-$(OBJDIR.lib)/%.o: $(SRCDIR.lib)/%.c $(call deps,$(SRCDIR.lib)/%.c,$(CFLAGS.lib),$(CPPFLAGS.lib)) | $(OBJDIR.lib)
+$(OBJDIR)/bcbasic/%.o: $(SRCDIR)/bcbasic/%.c $(call deps,$(SRCDIR)/bcbasic/%.c,$(CFLAGS.lib),$(CPPFLAGS.lib)) | $(OBJDIR)/bcbasic
 	@echo Compiling $<...
 	@$(_CC) $(CFLAGS) $(CFLAGS.lib) $(CPPFLAGS) $(CPPFLAGS.lib) $< -c -o $@
 	@echo Compiled $<
@@ -98,10 +92,10 @@ $(BIN.lib.so): $(OBJECTS.lib) | $(OUTDIR)
 	@$(_LD) -shared $(LDFLAGS) $(LDFLAGS.lib) $^ $(LDLIBS) $(LDLIBS.lib) -o $@
 	@echo Linked $@
 
-$(OBJDIR.sh):
+$(OBJDIR)/shell:
 	@$(call mkdir,$@)
 
-$(OBJDIR.sh)/%.o: $(SRCDIR.sh)/%.c $(call deps,$(SRCDIR.sh)/%.c,$(CFLAGS.sh),$(CPPFLAGS.sh)) | $(OBJDIR.sh)
+$(OBJDIR)/shell/%.o: $(SRCDIR)/shell/%.c $(call deps,$(SRCDIR)/shell/%.c,$(CFLAGS.sh),$(CPPFLAGS.sh)) | $(OBJDIR)/shell
 	@echo Compiling $<...
 	@$(_CC) $(CFLAGS) $(CFLAGS.sh) $(CPPFLAGS) $(CPPFLAGS.sh) $< -c -o $@
 	@echo Compiled $<
@@ -113,6 +107,9 @@ ifneq ($(NOSTRIP),y)
 	@$(_STRIP) -s -R '.comment' -R '.note.*' -R '.gnu.build-id' $@ || exit 0
 endif
 	@echo Linked $@
+
+all: $(BIN.lib.a) $(BIN.lib.so) $(BIN.sh)
+	@:
 
 lib library: $(BIN.lib.a) $(BIN.lib.so)
 	@:
@@ -127,8 +124,7 @@ sh shell: $(BIN.sh)
 	@:
 
 clean:
-	@$(call rmdir,$(OBJDIR.lib))
-	@$(call rmdir,$(OBJDIR.sh))
+	@$(call rmdir,$(OBJDIR))
 
 distclean: clean
 	@$(call rm,$(BIN.lib.a))
@@ -140,9 +136,15 @@ SYSLIB := /usr/lib
 SYSBIN := /usr/bin
 
 install:
-	@echo Installing headers...; cp -rf '$(SRCDIR.lib)'/include/* '$(SYSINC)'
+	@echo Installing headers...; mkdir '$(SYSINC)/bcbasic'; cp -rf '$(SRCDIR)/bcbasic'/*.h '$(SYSINC)/bcbasic'
 	@if [ -f '$(BIN.lib.a)' ]; then echo Installing static library...; cp -f '$(BIN.lib.a)' '$(SYSLIB)'; fi
 	@if [ -f '$(BIN.lib.so)' ]; then echo Installing shared library...; cp -f '$(BIN.lib.so)' '$(SYSLIB)'; fi
 	@if [ -f '$(BIN.sh)' ]; then echo Installing shell...; cp -f '$(BIN.sh)' '$(SYSBIN)'; fi
 
-.PHONY: default all lib library lib.a static_library lib.so shared_library sh shell clean distclean install
+uninstall:
+	@echo Uninstalling headers...; rm -rf '$(SYSINC)/bcbasic'
+	@if [ -f '$(SYSLIB)/$(BIN.lib.a)' ]; then echo Uninstalling static library...; rm -f '$(SYSLIB)/$(BIN.lib.a)'; fi
+	@if [ -f '$(SYSLIB)/$(BIN.lib.so)' ]; then echo Uninstalling shared library...; rm -f '$(SYSLIB)/$(BIN.lib.so)'; fi
+	@if [ -f '$(SYSBIN)/$(BIN.sh)' ]; then echo Uninstalling shell...; rm -f '$(SYSBIN)/$(BIN.sh)'; fi
+
+.PHONY: default all lib library lib.a static_library lib.so shared_library sh shell clean distclean install uninstall

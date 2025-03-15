@@ -1,15 +1,10 @@
-Identifier chars: A-Z a-z 0-9 _
-Comment char: '
+Identifiers: [A-Za-z_][A-Za-z0-9_]*
+Single-line Comment char: '
+Multi-line comment char: `
 Namespace separator: :
+Namespace up-1 char: ?
 Statement terminators: \n ;
 Preprocessor char: #
-Common ops:
-    Casting:
-        foo = singlebar{2.3}
-        foo = singlebar[]{2.3}
-        foo = singlebar[5]{1.1, 1.2, 1.3, 1.4, 1.5}
-        foo = structbar{.a = 1, .b = 2}
-        foo = structbar[]{{.a = 1, .b = 2}, {.a = 3, .b = 4}}
 Operators:
     1 (L->R):
         A ++    - Postfix increment
@@ -64,8 +59,40 @@ Operators:
         A *= B  - Assignment with multiplication
         A /= B  - Assignment with division
         A %= B  - Assignment with remainder
-        A <<= B  - Assignment with left shift
-        A >>= B  - Assignment with right shift
+        A <<= B - Assignment with left shift
+        A >>= B - Assignment with right shift
         A &= B  - Assignment with bitwise AND
         A ^= B  - Assignment with bitwise XOR
         A |= B  - Assignment with Bitwise OR
+
+Common ops:
+
+    Casting:
+        foo = singlebar{2.3}
+        foo = singlebar[]{2.3}
+        foo = singlebar[5]{1.1, 1.2, 1.3, 1.4, 1.5}
+        foo = structbar{.a = 1, .b = 2}
+        foo = structbar[]{{.a = 1, .b = 2}, {.a = 3, .b = 4}}
+
+    Namespaces:
+        NAMESPACE abc
+            test = 3
+            NAMESPACE foo
+                DIM bar
+                NAMESPACE bar
+                    SUB VOID baz1(INT a, INT b)
+                        ?bar = a + b
+                        ++??test
+                    END
+                    SUB INT baz2
+                        ??test += 5
+                        RETURN ?bar + ??test
+                    END
+                END
+            END
+        END
+        abc:foo:bar = 456
+        abc:foo:bar:baz1 10, 20
+        abc:foo:bar:baz2
+        PRINT abc:foo:bar:baz2()
+

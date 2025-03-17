@@ -16,6 +16,7 @@ BCB_PACKEDENUM BCB_TypeGroup {    // Type groups
 
 BCB_PACKEDENUM BCB_TypeID {   // Type IDs
     BCB_TYPEID_STRING,  // String
+    BCB_TYPEID_BOOL,    // Boolean
     BCB_TYPEID_I8,      // 8-bit integer
     BCB_TYPEID_U8,      // 8-bit unsigned integer
     BCB_TYPEID_I16,     // 16-bit integer

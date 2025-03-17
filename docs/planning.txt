@@ -5,22 +5,27 @@ Namespace separator: :
 Namespace up-1 char: ?
 Statement terminators: \n ;
 Preprocessor char: #
+
 Operators:
+
     1 (L->R):
-        A ++    - Postfix increment
-        A --    - Postfix decrement
-        A ()    - Function call
-        A []    - Array subscripting
-        A . B   - Structure and union member access
-        A $     - Dereference
+        V ++        - Postfix increment
+        V --        - Postfix decrement
+        V ()        - Function call
+        V []        - Array subscripting
+        A . B       - Structure and union member access
+        < T > [ V ] - Array compound literal
+        < T > { V } - Structure compound literal
+        V $         - Dereference
     2 (R->L):
-        ++ A    - Prefix increment
-        -- A    - Prefix decrement
-        + A     - Unary positive
-        - A     - Unary negative
-        ! A     - Logical NOT
-        ~ A     - Bitwise NOT
-        @ A     - Reference
+        ++ V    - Prefix increment
+        -- V    - Prefix decrement
+        + V     - Unary positive
+        - V     - Unary negative
+        ! V     - Logical NOT
+        ~ V     - Bitwise NOT
+        < T >   - Casting
+        @ V     - Reference
     3 (L->R):
         A * B   - Multiplication
         A / B   - Division
@@ -65,34 +70,351 @@ Operators:
         A ^= B  - Assignment with bitwise XOR
         A |= B  - Assignment with Bitwise OR
 
-Common ops:
+Builtins:
 
-    Casting:
-        foo = singlebar{2.3}
-        foo = singlebar[]{2.3}
-        foo = singlebar[5]{1.1, 1.2, 1.3, 1.4, 1.5}
-        foo = structbar{.a = 1, .b = 2}
-        foo = structbar[]{{.a = 1, .b = 2}, {.a = 3, .b = 4}}
+    Preprocessor commands:
 
-    Namespaces:
-        NAMESPACE abc
-            test = 3
-            NAMESPACE foo
-                DIM bar
-                NAMESPACE bar
-                    SUB VOID baz1(INT a, INT b)
-                        ?bar = a + b
-                        ++??test
-                    END
-                    SUB INT baz2
-                        ??test += 5
-                        RETURN ?bar + ??test
-                    END
+        #IF cond
+            [text]
+        #ELIF cond
+            [text]
+        #ELSE cond
+            [text]
+        #END
+        #DEFINE macro [text]
+        #UNDEF macro [text]
+        #REQUIRE "name"
+
+    Preprocessor functions:
+
+        {DEF|DEFINED}(macro) BOOL
+        {EXT|HASEXT}("name") BOOL
+
+    Program flow:
+
+        IF cond
+            [statements]
+        ELIF cond
+            [statements]
+        ELSE cond
+            [statements]
+        END
+        {WHILE|UNTIL} cond
+            [statements]
+        END
+        DO
+            [statements]
+        LOOP {WHILE|UNTIL} cond
+        BREAK
+        SWITCH val
+            CASE val
+                [statements]
+            END
+            DEFAULT
+                [statements]
+            END
+        END
+        FALL val
+        name:
+        GOTO label
+        RETURN [val]
+
+    Commands and functions:
+
+        ABS(val) [IUF]*
+        BIN(val [, padding [, char]]) STR
+        CALLSUB(name [arg [, arg]...]) ANY
+        CEIL(val) {F32|F64}
+        DEL name [, name]...
+        DELSUB sub [, sub]...
+        DIM type var [= val] [, type var [= val]]...
+        EXIT [val]
+        FLOOR(val) {F32|F64}
+        HEX(val [, padding [, char]]) STR
+        LEN(val) USZ
+        LET var = val [, var = val]...
+        MAX(val, val [, val]...) [IUF]*
+        MIN(val, val [, val]...) [IUF]*
+        OCT(val [, padding [, char]]) STR
+        ROUND(val) {F32|F64}
+        SIZE({ TYPE type | TYPEOF val })
+        STR(val) STR
+        TYPEDEF name type
+        USING name [, name]...
+
+    Types:
+
+        ANY
+        ...
+        NULL
+        VOID
+        STR
+        BOOL
+        I8
+        I16
+        I32
+        I64
+        U8
+        U16
+        U32
+        U64
+        ISZ
+        USZ
+        F32
+        F64
+        REF()
+        CONST()
+
+    Other:
+
+        NULL
+
+Extensions:
+
+    Standard library (std):
+
+        Commands and functions:
+
+            CHDIR("path") BOOL
+            CLOSE id
+            DATE([{LOCAL|UTC}]) DATE
+            ERRNO() I32
+            EXEC( \
+                { PATH "path" | NAME "name" } \
+                [, IN i32ref] [, OUT i32ref] [, ERR i32ref] \
+                [, ENV {"var=val"|"var=val"[]}]... \
+                [, ARGV {"argv0"|"list"[1...]} [, {"arg"|"list"[]}]...] \
+            ) PID
+            FLUSH(id) BOOL
+            GETC(id) I32
+            GETENV("var") {STR|NULL}
+            GETS(id) {STR|NULL}
+            ISFILE("path") I32
+            KILL(pid, signal) BOOL
+            FILES(["path"]) DIRENT[]
+            MKDIR("path" [, "path"]...) BOOL
+            MOVE("path" [, "path"]...) BOOL
+            OPEN("path", mode) I32
+            PRINT [val [, val]...]
+            FPRINT id [, val]...
+            PUTC(id, val [, val]...) BOOL
+            PUTS(id, "val" [, "val"]...) BOOL
+            READ(id, len) {STR|NULL}
+            READTO(id, strref, len) ISZ
+            REMOVE("path" [, "path"]...) BOOL
+            RMDIR("path" [, "path"]...) BOOL
+            SEEK(id, whence, off) ISZ
+            SETENV("var", "val" [, overwrite]) BOOL
+            SETERRNO val
+            STRERROR(errno) STR
+            STRDATE(date [, "format"]) STR
+            TELL(id) ISZ
+            TIME([{REALTIME|MONOTONIC}]) TIME
+            TIMEDIFF([{SIGNED|UNSIGNED}] {S|MS|US|NS} minuend, subtrahend) {I64|U64}
+            TIMEMOD(time, {ADD|SUB} {S|MS|US|NS} val) TIME
+            WAIT(id [, {ret|sig}ref]) BOOL
+            WRITE(id, data [, { len | start, len } ]) ISZ
+
+        Types:
+
+            STRUCT TIME
+                I64 SEC
+                I64 NSEC
+            END
+            STRUCT DATE
+                I32 SEC
+                I32 MIN
+                I32 HOUR
+                I32 MDAY
+                I32 MON
+                I32 YEAR
+                I32 WDAY
+                I32 YDAY
+                I32 ISDST
+            END
+            STRUCT DIRENT
+                STR NAME
+                U8 TYPE
+            END
+            PID (I)
+
+        Macros:
+
+            E*
+            EOF
+            FILETYPE_DIR
+            FILETYPE_FILE
+            FILETYPE_SPECIAL
+            FILETYPE_UNKNOWN
+            SEEK_CUR
+            SEEK_END
+            SEEK_SET
+            SIG*
+            STDERR
+            STDIN
+            STDOUT
+
+    Shell (shell), requires 'std':
+
+        Commands and functions:
+
+            ARGC() I32
+            ARGV([n]) ANY
+            CALL("path" [, arg]...) {ANY|NULL}
+            GETEXEC() {STR|NULL}
+            INPUT {NORMAL|SILENT|PASSWORD} ref [, ref]...
+            RUN( \
+                "path" \
+                [, IN i32ref] [, OUT i32ref] [, ERR i32ref] \
+                [, ENV {"var=val"|"var=val"[]}]... \
+                [, ARGS {"argv0"|"list"[1...]} [, {"arg"|"list"[]}]...] \
+            ) USZ
+            WAITRUN(id) ANY
+
+        Macros:
+
+            ARCH
+            ARCH_AMD64
+            ARCH_ARM
+            ARCH_ARM64
+            ARCH_I386
+            ARCH_MIPS
+            ARCH_PPC
+            ARCH_UNKNOWN
+            PLATFORM
+            PLAT_FREEBSD
+            PLAT_LINUX
+            PLAT_MACOS
+            PLAT_NETBSD
+            PLAT_OPENBSD
+            PLAT_UNIX
+            PLAT_UNKNOWN
+            PLAT_WIN32
+            RUN_FAIL
+
+        Preprocessor commands:
+
+            #INCLUDE "path"
+            #LOADPLUGIN { NAME "name" | PATH "path" }
+
+        Preprocessor functions:
+
+            FINDPLUGIN({ NAME "name" | PATH "path" }) BOOL
+            LOADPLUGIN({ NAME "name" | PATH "path" }) BOOL
+
+    Interactive shell (ishell), requires 'shell':
+
+        Commands and functions:
+
+            /[0-9]+/ [statement]
+            WHITEOUT [, { start [, end] | [start], end }]
+            {CLS|CLEAR}
+            EXIT [val]
+            FINDPLUGIN({ NAME "name" | PATH "path" }) BOOL
+            HIST \
+                { FILE "path" | LEN val | LIST { start [, end] | [start], end } | {INS|REPL} ind, "val" \
+                | ADD "val" | DEL { start [, end] | [start], end } | CLEAR }
+            LIST [{ start [, end] | [start], end }]
+            LOAD "path" [, { start [, end] | [start], end }]
+            LOADPLUGIN({ NAME "name" | PATH "path" }) BOOL
+            PROMPT {PRI|SEC} "val"
+            RUN
+            SAVE "path" [, { start [, end] | [start], end }]
+
+    Math (math), optionally requires 'std':
+
+        Functions:
+
+            ACOS(val) {F32|F64}
+            ACOSH(val) {F32|F64}
+            ASIN(val) {F32|F64}
+            ASINH(val) {F32|F64}
+            ATAN(val) {F32|F64}
+            ATANH(val) {F32|F64}
+            ATAN2(val) {F32|F64}
+            COS(val) {F32|F64}
+            COSH(val) {F32|F64}
+            EXP(val) {F32|F64}
+            LOG(val) {F32|F64}
+            LOG10(val) {F32|F64}
+            MOD(val) {F32|F64}
+            POW(base, exp) {F32|F64}
+            SIN(val) {F32|F64}
+            SINH(val) {F32|F64}
+            SQRT(val) {F32|F64}
+            TAN(val) {F32|F64}
+            TANH(val) {F32|F64}
+
+    Threading (threading), optionally requires 'std':
+
+        Functions:
+
+            ACCLOCK:CREATE() USZ
+            ACCLOCK:ACQREAD(id) BOOL
+            ACCLOCK:ACQWRITE(id) BOOL
+            ACCLOCK:DESTROY id
+            ACCLOCK:RLSREAD id
+            ACCLOCK:RLSWRITE id
+            ACCLOCK:READTOWRITE(id) BOOL
+            ACCLOCK:WRITETOREAD(id) BOOL
+            ACCLOCK:YIELDREAD id
+            CND:BROADCAST id
+            CND:CREATE() USZ
+            CND:DESTROY id
+            CND:SIGNAL id
+            CND:TIMEDWAIT(id, time) BOOL
+            CND:WAIT id
+            MTX:CREATE() USZ
+            MTX:DESTROY id
+            MTX:LOCK id
+            MTX:TIMEDLOCK(id, time) BOOL
+            MTX:TRYLOCK(id)
+            MTX:UNLOCK id
+            THRD:CREATE(sub [, arg]...) USZ
+            THRD:DESTROY(id) {ANY|NULL}
+            YIELD
+
+        Macros:
+
+            ACCLOCK:CREATEFAIL (<USZ>-1)
+            CND:CREATEFAIL (<USZ>-1)
+            MTX:CREATEFAIL (<USZ>-1)
+            THRD:CREATEFAIL (<USZ>-1)
+
+---
+
+Examples:
+
+    foo = <bar>2.3
+    foo = <const(bar)>2.3
+    bar = <ref(const(bar))>@foo
+    foo = <bar[]>[2.3]
+    foo = <bar[5]>[1.1, 1.2, 1.3, 1.4, 1.5]
+    foo = <baz>{.a = 1, .b = 2}
+    foo = <baz[]>[{.a = 1, .b = 2}, {.a = 3, .b = 4}]
+
+    NAMESPACE abc
+        test = 3
+        NAMESPACE foo
+            DIM bar
+            NAMESPACE bar
+                SUB baz1(INT a, INT b)
+                    ?bar = a + b
+                    ++??test
+                END
+                SUB baz2 INT
+                    ??test += 5
+                    RETURN ?bar + ??test
+                END
+                SUB baz3(INT a) INT
+                    ??test += 5 - a
+                    RETURN ?bar + ??test
                 END
             END
         END
-        abc:foo:bar = 456
-        abc:foo:bar:baz1 10, 20
-        abc:foo:bar:baz2
-        PRINT abc:foo:bar:baz2()
+    END
+    abc:foo:bar = 456
+    abc:foo:bar:baz1 10, 20
+    abc:foo:bar:baz2
+    PRINT abc:foo:bar:baz2()
 

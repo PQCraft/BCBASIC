@@ -36,6 +36,8 @@ Operators:
     5 (L->R):
         A << B  - Left shift
         A >> B  - Right shift
+        A <<< B - Left rotate
+        A >>> B - Right rotate
     6 (L->R):
         A < B   - Less than
         A <= B  - Less than or equal to
@@ -58,17 +60,19 @@ Operators:
     12 (L->R):
         A || B  - Logical OR
     13 (R->L):
-        A = B   - Assignment
-        A += B  - Assignment with addition
-        A -= B  - Assignment with subtraction
-        A *= B  - Assignment with multiplication
-        A /= B  - Assignment with division
-        A %= B  - Assignment with remainder
-        A <<= B - Assignment with left shift
-        A >>= B - Assignment with right shift
-        A &= B  - Assignment with bitwise AND
-        A ^= B  - Assignment with bitwise XOR
-        A |= B  - Assignment with Bitwise OR
+        A = B       - Assignment
+        A += B      - Assignment with addition
+        A -= B      - Assignment with subtraction
+        A *= B      - Assignment with multiplication
+        A /= B      - Assignment with division
+        A %= B      - Assignment with remainder
+        A <<= B     - Assignment with left shift
+        A >>= B     - Assignment with right shift
+        A <<<= B    - Assignment with left rotate
+        A >>>= B    - Assignment with right rotate
+        A &= B      - Assignment with bitwise AND
+        A ^= B      - Assignment with bitwise XOR
+        A |= B      - Assignment with Bitwise OR
 
 Builtins:
 
@@ -90,7 +94,27 @@ Builtins:
         {DEF|DEFINED}(macro) BOOL
         {EXT|HASEXT}("name") BOOL
 
-    Program flow:
+    Keywords:
+
+        CALLSUB(name [arg [, arg]...]) ANY
+        DEL name [, name]...
+        DELSUB sub [, sub]...
+        DIM type var [= val] [, type var [= val]]...
+        EXIT [val]
+        LEN(val) USZ
+        LET var = val [, var = val]...
+        OPR { {PREINC|PREDEC|POSTINC|POSTDEC|ADD|SUB|MUL|DIV|REM \
+              |LSHIFT|RSHIFT|LROT|RROT|NOT|AND|OR|XOR \
+              |LOGOR|LOGAND|LOGNOT|EQ|NEQ|LT|LE|GT|GE} \
+              (lefttype left, righttype right) outtype \
+            | CAST (fromtype from) totype }
+            [statements]
+        END
+        SIZE({ TYPE type | TYPEOF val })
+        TYPEDEF name type
+        USING name [, name]...
+
+    Program flow keywords:
 
         IF cond
             [statements]
@@ -119,28 +143,15 @@ Builtins:
         GOTO label
         RETURN [val]
 
-    Commands and functions:
+    Functions:
 
         ABS(val) [IUF]*
-        BIN(val [, padding [, char]]) STR
-        CALLSUB(name [arg [, arg]...]) ANY
         CEIL(val) {F32|F64}
-        DEL name [, name]...
-        DELSUB sub [, sub]...
-        DIM type var [= val] [, type var [= val]]...
-        EXIT [val]
         FLOOR(val) {F32|F64}
-        HEX(val [, padding [, char]]) STR
-        LEN(val) USZ
-        LET var = val [, var = val]...
         MAX(val, val [, val]...) [IUF]*
         MIN(val, val [, val]...) [IUF]*
-        OCT(val [, padding [, char]]) STR
         ROUND(val) {F32|F64}
-        SIZE({ TYPE type | TYPEOF val })
-        STR(val) STR
-        TYPEDEF name type
-        USING name [, name]...
+        STR(val [, base [, padto [, padchar]]]) STR
 
     Types:
 
@@ -206,13 +217,14 @@ Extensions:
             SEEK(id, whence, off) ISZ
             SETENV("var", "val" [, overwrite]) BOOL
             SETERRNO val
+            SLEEP(time [, remtimeref]) BOOL
             STRERROR(errno) STR
             STRDATE(date [, "format"]) STR
             TELL(id) ISZ
             TIME([{REALTIME|MONOTONIC}]) TIME
-            TIMEDIFF([{SIGNED|UNSIGNED}] {S|MS|US|NS} minuend, subtrahend) {I64|U64}
-            TIMEMOD(time, {ADD|SUB} {S|MS|US|NS} val) TIME
-            WAIT(id [, {ret|sig}ref]) BOOL
+            TIMEADJ({TIME|T|S|MS|US|NS} val, { {ADD|SUB} {TIME|T|S|MS|US|NS} val | CONV {TIME|T|S|MS|US|NS} }) {TIME|[UI]*}
+            TRAP { ON sig, sub | IGNORE sig }
+            WAIT(id [, retorsigref]) BOOL
             WRITE(id, data [, { len | start, len } ]) ISZ
 
         Types:
@@ -261,6 +273,8 @@ Extensions:
             ARGC() I32
             ARGV([n]) ANY
             CALL("path" [, arg]...) {ANY|NULL}
+            {CLS|CLEAR}
+            COLOR { SET { fgc [, bgc] | [fgc], bgc } | RESET }
             GETEXEC() {STR|NULL}
             INPUT {NORMAL|SILENT|PASSWORD} ref [, ref]...
             RUN( \
@@ -308,7 +322,6 @@ Extensions:
 
             /[0-9]+/ [statement]
             WHITEOUT [, { start [, end] | [start], end }]
-            {CLS|CLEAR}
             EXIT [val]
             FINDPLUGIN({ NAME "name" | PATH "path" }) BOOL
             HIST \

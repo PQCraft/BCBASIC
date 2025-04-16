@@ -13,9 +13,9 @@ Operators:
         V --        - Postfix decrement
         V ()        - Function call
         V []        - Array subscripting
-        A . B       - Structure and union member access
+        A . B       - Structure, union, and object member access
         < T > [ V ] - Array compound literal
-        < T > { V } - Structure compound literal
+        < T > { V } - Structure, union, and object compound literal
         V $         - Dereference
     2 (R->L):
         ++ V    - Prefix increment
@@ -103,6 +103,9 @@ Builtins:
         EXIT [val]
         LEN(val) USZ
         LET var = val [, var = val]...
+        OBJECT name
+            type name
+        END
         OPR { {PREINC|PREDEC|POSTINC|POSTDEC|ADD|SUB|MUL|DIV|REM \
               |LSHIFT|RSHIFT|LROT|RROT|NOT|AND|OR|XOR \
               |LOGOR|LOGAND|LOGNOT|EQ|NEQ|LT|LE|GT|GE} \
@@ -111,7 +114,13 @@ Builtins:
             [statements]
         END
         SIZE({ TYPE type | TYPEOF val })
+        STRUCT [name]
+            {[IUF]*|REF()} name [, name]...
+        END
         TYPEDEF name type
+        UNION [name]
+            [IUF]* name [, name]...
+        END
         USING name [, name]...
 
     Program flow keywords:
@@ -129,6 +138,9 @@ Builtins:
         DO
             [statements]
         LOOP {WHILE|UNTIL} cond
+        FOR [type var = val], cond [, expr]...
+            [statements]
+        END
         BREAK
         SWITCH val
             CASE val
@@ -151,7 +163,7 @@ Builtins:
         MAX(val, val [, val]...) [IUF]*
         MIN(val, val [, val]...) [IUF]*
         ROUND(val) {F32|F64}
-        STR(val [, base [, padto [, padchar]]]) STR
+        STR(val [, base [, [uppercase], [, padto [, padchar]]]]) STR
 
     Types:
 
@@ -173,8 +185,9 @@ Builtins:
         USZ
         F32
         F64
-        REF()
         CONST()
+        REF()
+        NULLABLE()
 
     Other:
 
@@ -197,6 +210,8 @@ Extensions:
                 [, ARGV {"argv0"|"list"[1...]} [, {"arg"|"list"[]}]...] \
             ) PID
             FLUSH(id) BOOL
+            FPRINT id [, val]...
+            FPRINTLN id [, val]...
             GETC(id) I32
             GETENV("var") {STR|NULL}
             GETS(id) {STR|NULL}
@@ -207,7 +222,7 @@ Extensions:
             MOVE("path" [, "path"]...) BOOL
             OPEN("path", mode) I32
             PRINT [val [, val]...]
-            FPRINT id [, val]...
+            PRINTLN [val [, val]...]
             PUTC(id, val [, val]...) BOOL
             PUTS(id, "val" [, "val"]...) BOOL
             READ(id, len) {STR|NULL}
@@ -223,7 +238,7 @@ Extensions:
             TELL(id) ISZ
             TIME([{REALTIME|MONOTONIC}]) TIME
             TIMEADJ({TIME|T|S|MS|US|NS} val, { {ADD|SUB} {TIME|T|S|MS|US|NS} val | CONV {TIME|T|S|MS|US|NS} }) {TIME|[UI]*}
-            TRAP { ON sig, sub | IGNORE sig }
+            TRAP { ON sig, sub | IGNORE sig } [, { ON sig, sub | IGNORE sig }]...
             WAIT(id [, retorsigref]) BOOL
             WRITE(id, data [, { len | start, len } ]) ISZ
 
@@ -244,7 +259,7 @@ Extensions:
                 I32 YDAY
                 I32 ISDST
             END
-            STRUCT DIRENT
+            OBJECT DIRENT
                 STR NAME
                 U8 TYPE
             END
@@ -267,23 +282,6 @@ Extensions:
             STDOUT
 
     Shell (shell), requires 'std':
-
-        Commands and functions:
-
-            ARGC() I32
-            ARGV([n]) ANY
-            CALL("path" [, arg]...) {ANY|NULL}
-            {CLS|CLEAR}
-            COLOR { SET { fgc [, bgc] | [fgc], bgc } | RESET }
-            GETEXEC() {STR|NULL}
-            INPUT {NORMAL|SILENT|PASSWORD} ref [, ref]...
-            RUN( \
-                "path" \
-                [, IN i32ref] [, OUT i32ref] [, ERR i32ref] \
-                [, ENV {"var=val"|"var=val"[]}]... \
-                [, ARGS {"argv0"|"list"[1...]} [, {"arg"|"list"[]}]...] \
-            ) USZ
-            WAITRUN(id) ANY
 
         Macros:
 
@@ -315,6 +313,23 @@ Extensions:
 
             FINDPLUGIN({ NAME "name" | PATH "path" }) BOOL
             LOADPLUGIN({ NAME "name" | PATH "path" }) BOOL
+
+        Commands and functions:
+
+            ARGC() I32
+            ARGV([n]) ANY
+            CALL("path" [, arg]...) {ANY|NULL}
+            {CLS|CLEAR}
+            COLOR { SET { fgc [, bgc] | [fgc], bgc } | RESET }
+            GETEXEC() {STR|NULL}
+            INPUT {NORMAL|SILENT|PASSWORD} ref [, ref]...
+            RUN( \
+                "path" \
+                [, IN i32ref] [, OUT i32ref] [, ERR i32ref] \
+                [, ENV {"var=val"|"var=val"[]}]... \
+                [, ARGS {"argv0"|"list"[1...]} [, {"arg"|"list"[]}]...] \
+            ) USZ
+            WAITRUN(id) ANY
 
     Interactive shell (ishell), requires 'shell':
 
@@ -360,6 +375,13 @@ Extensions:
 
     Threading (threading), optionally requires 'std':
 
+        Macros:
+
+            ACCLOCK:CREATEFAIL (<USZ>-1)
+            CND:CREATEFAIL (<USZ>-1)
+            MTX:CREATEFAIL (<USZ>-1)
+            THRD:CREATEFAIL (<USZ>-1)
+
         Functions:
 
             ACCLOCK:CREATE() USZ
@@ -386,13 +408,6 @@ Extensions:
             THRD:CREATE(sub [, arg]...) USZ
             THRD:DESTROY(id) {ANY|NULL}
             YIELD
-
-        Macros:
-
-            ACCLOCK:CREATEFAIL (<USZ>-1)
-            CND:CREATEFAIL (<USZ>-1)
-            MTX:CREATEFAIL (<USZ>-1)
-            THRD:CREATEFAIL (<USZ>-1)
 
 ---
 

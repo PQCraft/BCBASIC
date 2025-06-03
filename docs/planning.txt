@@ -34,27 +34,28 @@ Operators:
         A + B   - Addition
         A - B   - Subtraction
     5 (L->R):
+        A & B   - Bitwise AND
+    6 (L->R):
+        A ^ B   - Bitwise XOR
+    7 (L->R):
+        A | B   - Bitwise OR
+    8 (L->R):
         A << B  - Left shift
         A >> B  - Right shift
         A <<< B - Left rotate
         A >>> B - Right rotate
-    6 (L->R):
+    9 (L->R):
         A < B   - Less than
         A <= B  - Less than or equal to
         A =< B
         A >= B  - Greater than or equal to
         A => B
         A > B   - Greater than
-    7 (L->R):
+    10 (L->R):
         A == B  - Equal
         A != B  - Not equal
         A <> B
-    8 (L->R):
-        A & B   - Bitwise AND
-    9 (L->R):
-        A ^ B   - Bitwise XOR
-    10 (L->R):
-        A | B   - Bitwise OR
+        A ~= B  - Approximately equal
     11 (L->R):
         A && B  - Logical AND
     12 (L->R):
@@ -72,12 +73,13 @@ Operators:
         A >>>= B    - Assignment with right rotate
         A &= B      - Assignment with bitwise AND
         A ^= B      - Assignment with bitwise XOR
-        A |= B      - Assignment with Bitwise OR
+        A |= B      - Assignment with bitwise OR
 
 Builtins:
 
     Preprocessor commands:
 
+        #DEL name
         #IF cond
             [text]
         #ELIF cond
@@ -85,18 +87,18 @@ Builtins:
         #ELSE cond
             [text]
         #END
-        #DEFINE macro [text]
-        #UNDEF macro [text]
-        #REQUIRE "name"
+        #LET name [= val] [, name [= val]]...
+        #REQUIRE "ext_name"
 
     Preprocessor functions:
 
-        {DEF|DEFINED}(macro) BOOL
-        {EXT|HASEXT}("name") BOOL
+        SET(name) BOOL
+        HASEXT("ext_name") BOOL
 
     Keywords:
 
         CALLSUB(name [arg [, arg]...]) ANY
+        DECLSUB name [ ([type [name] [, type [name]]...]) ] [return_type]
         DEL name [, name]...
         DELSUB sub [, sub]...
         DIM type var [= val] [, type var [= val]]...
@@ -117,10 +119,14 @@ Builtins:
         STRUCT [name]
             {[IUF]*|REF()} name [, name]...
         END
+        SUB name [ ([type [name] [, type [name]]...]) ] [return_type]
+            [statements]
+        END
         TYPEDEF name type
         UNION [name]
             [IUF]* name [, name]...
         END
+        UNUSING name [, name]...
         USING name [, name]...
 
     Program flow keywords:
@@ -265,10 +271,9 @@ Extensions:
             END
             PID (I)
 
-        Macros:
+        Enums:
 
             E*
-            EOF
             FILETYPE_DIR
             FILETYPE_FILE
             FILETYPE_SPECIAL
@@ -277,35 +282,19 @@ Extensions:
             SEEK_END
             SEEK_SET
             SIG*
+
+        Constants:
+
+            EOF
             STDERR
             STDIN
             STDOUT
 
     Shell (shell), requires 'std':
 
-        Macros:
-
-            ARCH
-            ARCH_AMD64
-            ARCH_ARM
-            ARCH_ARM64
-            ARCH_I386
-            ARCH_MIPS
-            ARCH_PPC
-            ARCH_UNKNOWN
-            PLATFORM
-            PLAT_FREEBSD
-            PLAT_LINUX
-            PLAT_MACOS
-            PLAT_NETBSD
-            PLAT_OPENBSD
-            PLAT_UNIX
-            PLAT_UNKNOWN
-            PLAT_WIN32
-            RUN_FAIL
-
         Preprocessor commands:
 
+            #!
             #INCLUDE "path"
             #LOADPLUGIN { NAME "name" | PATH "path" }
 
@@ -330,6 +319,30 @@ Extensions:
                 [, ARGS {"argv0"|"list"[1...]} [, {"arg"|"list"[]}]...] \
             ) USZ
             WAITRUN(id) ANY
+
+        Enums:
+
+            ARCH_AMD64
+            ARCH_ARM
+            ARCH_ARM64
+            ARCH_I386
+            ARCH_MIPS
+            ARCH_PPC
+            ARCH_UNKNOWN
+            PLAT_FREEBSD
+            PLAT_LINUX
+            PLAT_MACOS
+            PLAT_NETBSD
+            PLAT_OPENBSD
+            PLAT_UNIX
+            PLAT_UNKNOWN
+            PLAT_WIN32
+
+        Constants:
+
+            ARCH
+            PLATFORM
+            RUN_FAIL
 
     Interactive shell (ishell), requires 'shell':
 
@@ -375,13 +388,6 @@ Extensions:
 
     Threading (threading), optionally requires 'std':
 
-        Macros:
-
-            ACCLOCK:CREATEFAIL (<USZ>-1)
-            CND:CREATEFAIL (<USZ>-1)
-            MTX:CREATEFAIL (<USZ>-1)
-            THRD:CREATEFAIL (<USZ>-1)
-
         Functions:
 
             ACCLOCK:CREATE() USZ
@@ -408,6 +414,13 @@ Extensions:
             THRD:CREATE(sub [, arg]...) USZ
             THRD:DESTROY(id) {ANY|NULL}
             YIELD
+
+        Constants:
+
+            ACCLOCK:CREATEFAIL = <USZ>-1
+            CND:CREATEFAIL = <USZ>-1
+            MTX:CREATEFAIL = <USZ>-1
+            THRD:CREATEFAIL = <USZ>-1
 
 ---
 

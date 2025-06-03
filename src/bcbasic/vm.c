@@ -1,1 +1,3 @@
-#include "vm_static.h"
+#define BCBASIC_STATIC
+
+#include "vm.h"

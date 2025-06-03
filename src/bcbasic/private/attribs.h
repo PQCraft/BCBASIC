@@ -8,12 +8,10 @@ extern "C" {
 #ifndef _MSC_VER
     #define BCB_PACKEDENUM enum __attribute__((packed))
     #define BCB_ALWAYSINLINE inline __attribute__((always_inline))
-    #define BCB_FLATTEN __attribute__((flatten))
     #define BCB_THREADLOCAL __thread
 #else
     #define BCB_PACKEDENUM enum
     #define BCB_ALWAYSINLINE __forceinline
-    #define BCB_FLATTEN [[msvc::flatten]]
     #define BCB_THREADLOCAL __declspec(thread)
 #endif
 

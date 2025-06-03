@@ -1,6 +1,10 @@
 #ifndef BCBASIC_ERROR_H
 #define BCBASIC_ERROR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum BCB_Error {    // Error codes
     BCB_ERROR_NONE,         // No error
     BCB_ERROR_SYNTAX,       // Syntax error
@@ -14,5 +18,9 @@ enum BCB_Error {    // Error codes
 
 const char* BCB_GetErrorName(enum BCB_Error);
 const char* BCB_GetErrorDesc(enum BCB_Error);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

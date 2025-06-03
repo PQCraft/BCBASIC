@@ -1,4 +1,4 @@
-#include "private/crc.h"
+#include "crc.h"
 
 #include <ctype.h>
 

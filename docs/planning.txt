@@ -79,7 +79,8 @@ Builtins:
 
     Preprocessor commands:
 
-        #DEL name
+        #DEL var
+        #DIM var [AS type] [, var [AS type]]...
         #IF cond
             [text]
         #ELIF cond
@@ -87,12 +88,12 @@ Builtins:
         #ELSE cond
             [text]
         #END
-        #LET name [= val] [, name [= val]]...
+        #LET var = val [, var = val]...
         #REQUIRE "ext_name"
 
     Preprocessor functions:
 
-        SET(name) BOOL
+        SET(var) BOOL
         HASEXT("ext_name") BOOL
 
     Keywords:
@@ -101,10 +102,10 @@ Builtins:
         DECLSUB name [ ([type [name] [, type [name]]...]) ] [return_type]
         DEL name [, name]...
         DELSUB sub [, sub]...
-        DIM type var [= val] [, type var [= val]]...
+        DIM var [AS type] [, var [AS type]]...
         EXIT [val]
         LEN(val) USZ
-        LET var = val [, var = val]...
+        [LET] var = val [, var = val]...
         OBJECT name
             type name
         END
@@ -135,15 +136,15 @@ Builtins:
             [statements]
         ELIF cond
             [statements]
-        ELSE cond
+        ELSE
             [statements]
         END
-        {WHILE|UNTIL} cond
+        WHILE cond
             [statements]
         END
         DO
             [statements]
-        LOOP {WHILE|UNTIL} cond
+        LOOP [cond]
         FOR [type var = val], cond [, expr]...
             [statements]
         END

@@ -38,7 +38,7 @@ ifneq ($(DEBUG),y)
     CPPFLAGS += -DNDEBUG
     O := 2
 else
-    CFLAGS += -g -Wdouble-promotion -fno-omit-frame-pointer -std=c11 -pedantic
+    CFLAGS += -g -Wdouble-promotion -fno-omit-frame-pointer -std=c99 -pedantic
     O := g
 endif
 CFLAGS += -O$(O)

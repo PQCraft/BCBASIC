@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 // Returns a NULL-terminated list of the extensions the VM has, and optionally outputs the count
-char** BCB_VM_GetExtensions(size_t* count);
+const char* const* BCB_VM_GetExtensions(size_t* count);
 
 #ifdef BCBASIC_STATIC
 
